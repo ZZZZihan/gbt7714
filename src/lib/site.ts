@@ -11,7 +11,7 @@ export const OFFICIAL_STD_LINKS = {
 };
 
 export function getSiteUrl(): string {
-  const raw = import.meta.env.PUBLIC_SITE_URL || import.meta.env.SITE || 'https://gbt7714.org';
+  const raw = import.meta.env.PUBLIC_SITE_URL || import.meta.env.SITE || 'https://softcloudnote.top';
   return raw.replace(/\/+$/, '');
 }
 
