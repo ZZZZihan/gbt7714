@@ -1,0 +1,142 @@
+---
+import '../styles/global.css';
+import {
+  SITE_NAME,
+  SITE_SUBTITLE,
+  GUIDES,
+  UPCOMING_TOOLS,
+  OFFICIAL_STD_LINKS,
+  absoluteUrl,
+} from '../lib/site';
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath: string;
+  noindex?: boolean;
+  schemas?: Record<string, unknown>[];
+}
+
+const {
+  title,
+  description,
+  canonicalPath,
+  noindex = false,
+  schemas = [],
+} = Astro.props;
+
+const canonicalUrl = absoluteUrl(canonicalPath);
+const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
+const currentPath = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {noindex ? (
+      <meta name="robots" content="noindex, follow" />
+    ) : (
+      <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+    )}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:locale" content="zh_CN" />
+    <link rel="alternate" type="text/plain" title="LLMs Guide" href="/llms.txt" />
+    {schemas.map((schema) => (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    ))}
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <a href="/" class="brand-link">
+          <span class="brand-mark">GB/T 7714</span>
+          <span class="brand-name">{SITE_NAME}</span>
+        </a>
+
+        <nav class="main-nav" aria-label="主导航">
+          <a
+            href="/"
+            class="nav-item"
+            aria-current={currentPath === '/' ? 'page' : undefined}
+          >
+            参考文献转换
+          </a>
+          <a
+            href="/guides/gbt7714-2025-vs-2015/"
+            class="nav-item"
+            aria-current={currentPath.startsWith('/guides/') ? 'page' : undefined}
+          >
+            2025 新国标对照与指南
+          </a>
+          {UPCOMING_TOOLS.map((tool) => (
+            <a
+              href={tool.path}
+              class="nav-item"
+              aria-current={currentPath === tool.path ? 'page' : undefined}
+            >
+              <span>{tool.shortTitle}</span>
+              <span class="badge-upcoming">{tool.badge}</span>
+            </a>
+          ))}
+        </nav>
+      </div>
+    </header>
+
+    <slot />
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-col">
+          <h2>{SITE_NAME} · {SITE_SUBTITLE}</h2>
+          <p class="footer-note">
+            面向毕业论文撰写与中英文期刊投稿，遵循 2026 年 7 月 1 日正式实施的推荐性国家标准
+            《GB/T 7714—2025 信息与文献 参考文献著录规则》。
+          </p>
+          <p class="footer-note">
+            隐私与合规说明：格式清洗与转换均在浏览器本地执行（仅输入 DOI 时由浏览器直连 Crossref / DataCite 开放接口获取公开元数据），无需注册，无干扰广告。本站仅提供学术文献规范排版工具，不提供论文降重或规避查重/AIGC 检测相关功能。
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h2>GB/T 7714—2025 常见问题指南</h2>
+          <ul>
+            {GUIDES.map((g) => (
+              <li>
+                <a href={g.path}>{g.shortTitle}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h2>工具矩阵与标准依据</h2>
+          <ul>
+            <li><a href="/">参考文献生成与格式转换（当前可用）</a></li>
+            {UPCOMING_TOOLS.map((t) => (
+              <li>
+                <a href={t.path}>{t.title}（{t.badge}）</a>
+              </li>
+            ))}
+            <li>
+              <a href={OFFICIAL_STD_LINKS.openstd2025} target="_blank" rel="noopener noreferrer">
+                国家标准全文公开系统：GB/T 7714—2025
+              </a>
+            </li>
+            <li><a href="/llms.txt">AI 检索说明（llms.txt）</a></li>
+            <li><a href="/sitemap.xml">站点地图（sitemap.xml）</a></li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

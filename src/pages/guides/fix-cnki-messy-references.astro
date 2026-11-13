@@ -1,0 +1,133 @@
+---
+import GuideLayout from '../../components/GuideLayout.astro';
+import { SITE_NAME, OFFICIAL_STD_LINKS } from '../../lib/site';
+
+const title = '知网导出的参考文献格式乱了怎么办（空格、断行、旧版格式一键修复）';
+const description =
+  '针对知网（CNKI）和 PDF 复制参考文献常见的汉字间乱空格、断行错位、全半角标点混排、2015 旧版姓氏全大写及多余引用日期等 6 类问题，提供直接修复规则与在线批量清洗工具。';
+
+const steps = [
+  {
+    name: '复制知网或 PDF 中格式错乱的参考文献列表',
+    text: '无需手工逐个删空格或合并回车，直接把整段带有多余空格、断行或全角括号的引文复制下来。',
+  },
+  {
+    name: '粘贴进「国标引文 7714」自动诊断清洗',
+    text: '打开首页粘贴文本，本地清洗器会自动剔除汉字间断字空格、保留英文单词正常间距、合并折行，并按 GB/T 7714—2025 重新规范标点与大小写。',
+  },
+  {
+    name: '查看绿色修复提示并复制进 Word',
+    text: '每条结果下方会标出本次自动修复的细节（如清除断字空格、移除多余引用日期），点击「复制全部（保留 Word 斜体）」即可粘贴进论文，自带五号字与 2 字符悬挂缩进。',
+  },
+];
+
+const faqs = [
+  {
+    q: '用 Word 的“查找替换空格”直接删掉所有空格可以吗？',
+    a: '千万不要直接把空格全部替换为空！一旦在 Word 里把空格全部删掉，参考文献里所有的英文单词间距、英文作者姓与名缩写之间的空格（如 Einstein A 变成 EinsteinA）、DOI 与刊名间距都会被一并破坏。本工具采用字符集边界识别，只清除「汉字与汉字之间」的异常断字空格，完整保留西文词距。',
+  },
+  {
+    q: '粘贴到 Word 后第二行没有对齐文字、缩进乱了怎么调？',
+    a: '毕业论文参考文献通常要求「悬挂缩进 2 字符」（第一行顶格写 [1]，第二行起缩进对齐正文）。点击本工具的「复制全部（保留 Word 斜体）」粘贴时已自动带上悬挂缩进属性；若在 Word 内手动设置，可全选参考文献 → 右键「段落」→ 特殊格式选「悬挂缩进」，度量值设为「2 字符」，切勿手敲空格凑对齐。',
+  },
+  {
+    q: '知网导出的网络首发论文没有卷号、期号和页码，算是格式残缺吗？',
+    a: '不算残缺，但写法有专门规定。根据 GB/T 7714—2025 第 8.5 节，网络首发（Online First）尚无卷期页码的期刊文章，应标注 [J/OL]，并在刊名后著录完整的在线发表日期（YYYY-MM-DD）及访问路径，例如：铁道学报, 2024-05-09. http://kns.cnki.net/...。',
+  },
+];
+---
+
+<GuideLayout
+  title={title}
+  description={description}
+  canonicalPath="/guides/fix-cnki-messy-references/"
+  howToSteps={steps}
+  faqs={faqs}
+  citations={[OFFICIAL_STD_LINKS.openstd2025]}
+>
+  <div class="direct-answer-box">
+    <div class="direct-answer-title">直接答案与修复前后对比</div>
+    <p>
+      知网（CNKI）网页导出或从知网 PDF/CAJ 复制的参考文献格式错乱，最常见的原因是<strong>双字姓名被插入全/半角空格、PDF 跨行硬回车断裂、全半角括号混用，以及仍套用 2015 旧国标规则</strong>。不要在 Word 里盲目全局替换空格（会毁掉英文间距），将错乱引文整段粘贴到 <strong><a href="/?sample=cnki">{SITE_NAME}</a></strong> 即可在浏览器本地一键批量修复为 <strong>GB/T 7714—2025</strong> 标准格式。
+    </p>
+    <div class="code-sample">【修复前：知网/PDF 常见错乱文本】
+[1] 张 群 , 程 志 宝 , 石 志 飞 , 等 . 惯 性 增 强 动 力 吸 振 器 减 振 性 能 研
+究 ［J/OL］. 铁 道 学 报 , 2024 , 46 (05) : 12 — 20 [2025-04-12]. DOI: 10.3969/j.issn.1001-8360.2024.05.002.</div>
+    <div class="specimen-block">
+      <div class="specimen-hanging">
+        【修复后：GB/T 7714—2025 标准排版】<br />
+        [1] 张群, 程志宝, 石志飞, 等. 惯性增强动力吸振器减振性能研究[J/OL]. 铁道学报, 2024, 46(05): 12-20. DOI:10.3969/j.issn.1001-8360.2024.05.002.
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-try-bar">
+    <span>手头正好有格式乱掉的知网参考文献？点此直接批量清洗：</span>
+    <a href="/?sample=cnki" class="btn-primary">打开知网乱码一键修复工具</a>
+  </div>
+
+  <h2>知网与 PDF 参考文献常见的 6 类格式病灶及处理对照表</h2>
+  <div class="spec-table-wrap">
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th>常见错乱现象</th>
+          <th>错误样例</th>
+          <th>GB/T 7714—2025 规范写法</th>
+          <th>为什么不能手工硬改</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1. 汉字与双字姓名间多空格</strong></td>
+          <td><code>张 群 , 铁 道 学 报</code></td>
+          <td><code>张群, 铁道学报</code></td>
+          <td>Word 全局删空格会把英文标题与西文姓名缩写粘连在一起</td>
+        </tr>
+        <tr>
+          <td><strong>2. PDF 复制产生硬回车断行</strong></td>
+          <td>题名或 URL 中间多出换行符，变成两段</td>
+          <td>自动按序号 <code>[1]</code> 与句末特征合并为完整单段</td>
+          <td>几十条文献逐行按退格键极易误删连字符或字母</td>
+        </tr>
+        <tr>
+          <td><strong>3. 全半角括号与破折号混乱</strong></td>
+          <td><code>［J/OL］</code>、页码 <code>45 — 62</code></td>
+          <td>半角方括号 <code>[J/OL]</code>、半角短横 <code>45-62</code></td>
+          <td>国标明确规定 <code>.</code> <code>[ ]</code> <code>/</code> 采用半角符号</td>
+        </tr>
+        <tr>
+          <td><strong>4. 英文/拼音姓氏仍为全大写</strong></td>
+          <td><code>EINSTEIN A</code>、<code>LI Jiangning</code></td>
+          <td><code>Einstein A</code>、<code>Li Jiangning</code></td>
+          <td>知网旧版导出仍停在 2015 版，2025 版已改为首字母大写</td>
+        </tr>
+        <tr>
+          <td><strong>5. 在线期刊带多余 [引用日期]</strong></td>
+          <td><code>...[J/OL]. 铁道学报, 2024, 46(5): 12-20[2025-04-12].</code></td>
+          <td>去掉 <code>[2025-04-12]</code>（2025 版仅网页/数据集/预印本写引用日期）</td>
+          <td>手工容易把正常的期号或文献标识方括号一并误删</td>
+        </tr>
+        <tr>
+          <td><strong>6. 无卷号社科期刊误加逗号</strong></td>
+          <td><code>中国社会科学, 2023, (5): 45-62.</code></td>
+          <td><code>中国社会科学, 2023(5): 45-62.</code></td>
+          <td>无卷号时，年份与圆括号期号之间不加逗号</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>三步批量修复并粘贴进毕业论文 Word</h2>
+  <ol>
+    <li>
+      <strong>批量粘贴</strong>：从知网导出界面、CAJViewer、PDF 阅读器或旧 Word 文档中复制全部错乱参考文献，粘贴到 <a href="/?sample=cnki">{SITE_NAME}</a> 左侧输入框。
+    </li>
+    <li>
+      <strong>检查修复提示与微调</strong>：右侧预览区会实时显示转换后的 2025 新国标样式，并以绿色标签列出已自动执行的修复项。如个别早期文献原本缺失页码或出版地，点击该条右下角的「核对字段」即可直接补填。
+    </li>
+    <li>
+      <strong>富文本粘贴进 Word</strong>：点击「复制全部（保留 Word 斜体）」，在 Word 中按 <code>Ctrl + V</code>，自动应用五号宋体 + Times New Roman 与 2 字符悬挂缩进，避免手工敲空格导致排版错位。
+    </li>
+  </ol>
+</GuideLayout>

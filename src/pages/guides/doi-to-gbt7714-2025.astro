@@ -1,0 +1,154 @@
+---
+import GuideLayout from '../../components/GuideLayout.astro';
+import { SITE_NAME, OFFICIAL_STD_LINKS } from '../../lib/site';
+
+const title = 'DOI 怎么转成 GB/T 7714—2025 参考文献格式';
+const description =
+  '输入论文、arXiv 预印本或科学数据集的 DOI，通过 Crossref 与 DataCite 接口一键生成符合 2026 年 7 月实施的 GB/T 7714—2025 参考文献格式，附字段映射表与完整示例。';
+
+const steps = [
+  {
+    name: '复制文献 DOI 或链接',
+    text: '从期刊官网、Google Scholar、Web of Science 或 arXiv 页面复制形如 10.1038/nature13308 或 https://doi.org/10.xxxx 的标识符，多篇文献每行放一条。',
+  },
+  {
+    name: '粘贴到「国标引文 7714」在线转换器并查询',
+    text: '打开首页输入框粘贴 DOI，点击「联网查询 DOI 并生成」，浏览器将直连 Crossref 与 DataCite 接口拉取作者、题名、刊名、年卷期页码或文章编号。',
+  },
+  {
+    name: '按 2025 新国标核对并复制进 Word',
+    text: '确认输出体例（顺序编码制 [1] 或著者-出版年制），点击「复制全部（保留 Word 斜体）」粘贴到毕业论文或投稿文稿中。',
+  },
+];
+
+const faqs = [
+  {
+    q: '为什么把 arXiv 论文的 DOI（10.48550/arXiv.xxxx）放到有些 DOI 工具里会报错 404？',
+    a: '因为 arXiv 和 Zenodo 科学数据集的 DOI 注册在 DataCite 而非 Crossref。只接入 Crossref 的工具会返回 404。「国标引文 7714」同时接入了 Crossref 与 DataCite，并会自动将 arXiv 文献识别为 2025 新国标新增的预印本类型 [PP/OL]。',
+  },
+  {
+    q: 'GB/T 7714—2025 中 DOI 前缀后面要加空格吗？需要写 [引用日期] 吗？',
+    a: '根据 GB/T 7714—2025 附录 B 示例，永久标识符写作半角「DOI:10.xxxx/...」，冒号后不加空格。对于在线期刊论文 [J/OL]，2025 版不再要求著录 [YYYY-MM-DD] 引用日期；仅网站/网页 [EB/OL]、数据集 [DS/OL] 和预印本 [PP/OL] 必备引用日期。',
+  },
+  {
+    q: '电子期刊没有起止页码、只有一串电子文章编号（Article Number）怎么办？',
+    a: 'GB/T 7714—2025 第 7.7 节明确规定：连续出版物析出文献无页码而有文章编号的，应将文章编号按页码位置著录（如 Nature Communications、Physical Review 系列论文）。本工具会自动读取 Crossref 的 article-number 字段填入页码位。',
+  },
+];
+---
+
+<GuideLayout
+  title={title}
+  description={description}
+  canonicalPath="/guides/doi-to-gbt7714-2025/"
+  howToSteps={steps}
+  faqs={faqs}
+  citations={[OFFICIAL_STD_LINKS.openstd2025, OFFICIAL_STD_LINKS.crossrefApi]}
+>
+  <div class="direct-answer-box">
+    <div class="direct-answer-title">直接答案与转换示例</div>
+    <p>
+      把 DOI（如 <code>10.1038/nature13308</code>）转成 <strong>GB/T 7714—2025</strong> 格式，只需向 Crossref 或 DataCite 开放接口查询元数据，并按 2025 版规则将西文姓氏排为<strong>仅首字母大写</strong>、按资源本体标注 <code>[J/OL]</code> 或 <code>[PP/OL]</code>、末尾附无空格的 <code>DOI:</code> 永久标识符。使用免费免登录的 <strong><a href="/?sample=doi">{SITE_NAME}</a></strong> 可每行粘贴一条 DOI 批量完成转换。
+    </p>
+    <div class="code-sample">输入 DOI：10.1038/nature13308
+输入预印本 DOI：10.48550/arXiv.1706.03762</div>
+    <div class="specimen-block">
+      <div class="specimen-hanging">
+        [1] Myburg A A, Grattapaglia D, Tuskan G A, et al. The genome of <i>Eucalyptus grandis</i>[J/OL]. Nature, 2014, 510: 356-362. DOI:10.1038/nature13308.
+      </div>
+      <div class="specimen-hanging">
+        [2] Vaswani A, Shazeer N, Parmar N, et al. Attention is all you need[PP/OL]. arXiv (2017-06-12) [2026-11-12]. https://arxiv.org/abs/1706.03762. DOI:10.48550/arXiv.1706.03762.
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-try-bar">
+    <span>已准备好示例 DOI（含期刊论文与 arXiv 预印本），点击即可在工具首页实时验证：</span>
+    <a href="/?sample=doi" class="btn-primary">带示例打开 DOI 批量转换器</a>
+  </div>
+
+  <h2>三步把单个或批量 DOI 转为 GB/T 7714—2025</h2>
+  <ol>
+    <li>
+      <strong>整理 DOI 列表</strong>：支持纯编号（<code>10.1109/CVPR.2016.90</code>）、完整链接（<code>https://doi.org/10.1038/nature13308</code>）或 arXiv 地址（<code>https://arxiv.org/abs/1706.03762v5</code>），多篇文献按每行一条粘贴。
+    </li>
+    <li>
+      <strong>直连开放注册库拉取元数据</strong>：打开 <a href="/?sample=doi">{SITE_NAME}首页</a> 点击「联网查询 DOI 并生成」。程序优先通过 Crossref API 获取期刊、会议与专著元数据；遇到 <code>10.48550/arXiv.*</code> 或 <code>10.5281/zenodo.*</code> 等前缀时自动切换至 DataCite API。
+    </li>
+    <li>
+      <strong>选择体例并粘贴到 Word</strong>：默认输出顺序编码制 <code>[1]</code>，人文社科论文可切换为「著者-出版年制」；若学校要求不显示末尾网址和 DOI，取消勾选「保留 DOI / 网址」即可一键切换为纯纸质样式 <code>[J]</code>。
+    </li>
+  </ol>
+
+  <h2>Crossref / DataCite 元数据与 GB/T 7714—2025 字段对照表</h2>
+  <p>
+    自己写脚本或人工核对时，最容易出错的是把 2015 版的旧习惯带入 2025 版。下表列出了国际 DOI 元数据字段映射到新国标的准确规则：
+  </p>
+
+  <div class="spec-table-wrap">
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th>DOI 接口字段</th>
+          <th>GB/T 7714—2025 著录要求</th>
+          <th>正确示例（2025 版）</th>
+          <th>常见旧版/错误写法</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>author[].family</code> + <code>given</code></td>
+          <td>西文姓全部著录且<strong>仅首字母大写</strong>，名缩写为首字母不加点；超过 3 人加 <code>, et al.</code></td>
+          <td><code>Myburg A A, Grattapaglia D, Tuskan G A, et al.</code></td>
+          <td><code>MYBURG A A</code>（2015 旧版全大写）或漏写 <code>et al.</code></td>
+        </tr>
+        <tr>
+          <td>汉语拼音作者</td>
+          <td>姓首字母大写，<strong>名宜用全称</strong>（第 5.3 节）</td>
+          <td><code>Li Jiangning, Wang Xinya</code></td>
+          <td><code>LI J N</code>（2015 旧版写法）</td>
+        </tr>
+        <tr>
+          <td><code>type: journal-article</code></td>
+          <td>附带获取路径或 DOI 时标 <code>[J/OL]</code>，<strong>不再写引用日期</strong></td>
+          <td><code>...grandis[J/OL]. Nature, 2014, 510: 356-362.</code></td>
+          <td>多写 <code>[2026-11-12]</code> 引用日期</td>
+        </tr>
+        <tr>
+          <td><code>type: posted-content</code> / arXiv</td>
+          <td>使用 2025 新增预印本标识 <code>[PP/OL]</code>，写明平台、（创建或修改日期）与 <code>[引用日期]</code></td>
+          <td><code>...[PP/OL]. V2. arXiv (2012-03-18) [2026-11-12].</code></td>
+          <td>误标成 <code>[EB/OL]</code> 或 <code>[J]</code></td>
+        </tr>
+        <tr>
+          <td><code>type: dataset</code></td>
+          <td>标 <code>[DS/OL]</code>，含版本号、发布平台、（发布日期）与 <code>[引用日期]</code></td>
+          <td><code>...[DS/OL]. V1.0. Zenodo (2024-03-10) [2026-11-12].</code></td>
+          <td>缺少引用日期或平台名</td>
+        </tr>
+        <tr>
+          <td><code>article-number</code>（无页码）</td>
+          <td>无 <code>page</code> 字段而有文章编号时，直接按页码位著录</td>
+          <td><code>Nature Communications, 2024, 15: 4821.</code></td>
+          <td>页码位留空</td>
+        </tr>
+        <tr>
+          <td><code>DOI</code></td>
+          <td>作为永久标识符（PID）置于末尾，<code>DOI:</code> 半角冒号后无空格</td>
+          <td><code>DOI:10.1038/nature13308.</code></td>
+          <td>重复输出相同 <code>https://doi.org/...</code> 与 <code>DOI:</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>哪些文献不适合只靠 DOI 转换？</h2>
+  <ul>
+    <li>
+      <strong>早期中文期刊与中国学位论文</strong>：部分中文文献未注册 Crossref DOI，或 Crossref 中仅存有英文拼音元数据而无汉字标题。遇到这类文献，请直接从知网复制引文并用 <a href="/guides/fix-cnki-messy-references/">知网参考文献清洗转换</a> 功能处理。
+    </li>
+    <li>
+      <strong>网络首发（Online First）中文期刊</strong>：知网网络首发论文常尚无卷期页码，按 GB/T 7714—2025 第 8.5 节应著录完整发表日期（如 <code>铁道学报, 2024-05-09.</code>）及访问路径。
+    </li>
+  </ul>
+</GuideLayout>

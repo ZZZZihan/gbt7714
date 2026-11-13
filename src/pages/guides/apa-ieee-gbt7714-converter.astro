@@ -1,0 +1,135 @@
+---
+import GuideLayout from '../../components/GuideLayout.astro';
+import { SITE_NAME, OFFICIAL_STD_LINKS } from '../../lib/site';
+
+const title = 'APA、IEEE 和国标 GB/T 7714—2025 怎么互相转换（保留 Word 斜体）';
+const description =
+  '英文论文改投中文期刊或毕业论文整理常见需求：将 APA 第 7 版、IEEE 与 GB/T 7714—2025 参考文献互相批量转换，附三种格式规则对照表及 Word 保留斜体粘贴技巧。';
+
+const steps = [
+  {
+    name: '粘贴已有的 APA、IEEE、国标引文或 BibTeX / DOI',
+    text: '支持直接粘贴英文论文末尾已经排好的 APA / IEEE 纯文本引文，或粘贴中文论文的国标引文；若文献带有 DOI，也可点击「用 Crossref 校准」获取完整作者名。',
+  },
+  {
+    name: '点击顶部格式标签切换目标体系',
+    text: '在右侧输出栏顶部一键切换「GB/T 7714—2025」「APA (7th)」「IEEE」或「BibTeX」，所有条目即时重排。',
+  },
+  {
+    name: '使用富文本复制保留期刊与书名斜体',
+    text: 'APA 第 7 版要求期刊名与卷号斜体，IEEE 要求期刊名或会议录名斜体。点击「复制全部（保留 Word 斜体）」粘贴进 Word，无需手动逐条设斜体。',
+  },
+];
+
+const faqs = [
+  {
+    q: '把只有 3 个作者加“et al.”的国标引文转成 APA 7th 时要注意什么？',
+    a: 'GB/T 7714 超过 3 位作者即省略为“et al.”，而 APA 第 7 版规定 20 位以内作者需全部列出。如果你粘贴的是已经省略掉第 4 位以后作者的纯文本，任何本地文本工具都无法凭空猜出被省略的作者姓名——此时只要该条文献带有 DOI，点击条目右下角的「用 Crossref 校准」按钮，工具就会自动联网补齐全部作者并按 APA 7th 完整列出。',
+  },
+  {
+    q: '为什么复制进 Word 时普通工具会丢失 APA 和 IEEE 的斜体？',
+    a: '普通网页的“复制”按钮大多调用纯文本剪贴板接口（writeText），会把 HTML 中的 <i> 斜体标签全部丢弃。本站同时向系统剪贴板写入精简的富文本（text/html）与纯文本双通道数据，因此粘贴到 Microsoft Word 或 WPS 时能原样保留斜体，粘贴到记事本或 VS Code 时则自动降级为干净纯文本。',
+  },
+  {
+    q: 'IEEE 会议论文转成 GB/T 7714—2025 时文献类型代码是什么？',
+    a: 'IEEE 中的“in Proc. CVPR...”属于会议录析出文献，转为 GB/T 7714—2025 时使用 [C]（附带在线链接或 DOI 时为 [C/OL]），并以双斜杠 // 引出会议录名称，去掉英文题名两侧的双引号。',
+  },
+];
+---
+
+<GuideLayout
+  title={title}
+  description={description}
+  canonicalPath="/guides/apa-ieee-gbt7714-converter/"
+  howToSteps={steps}
+  faqs={faqs}
+  citations={[OFFICIAL_STD_LINKS.openstd2025]}
+>
+  <div class="direct-answer-box">
+    <div class="direct-answer-title">直接答案与同一篇文献的三格式对比</div>
+    <p>
+      将英文期刊/会议投稿用的 <strong>APA (7th)</strong>、<strong>IEEE</strong> 与国内毕业论文/中文期刊要求的 <strong>GB/T 7714—2025</strong> 互相转换，核心是重组<strong>作者姓名顺序、出版年位置、文献类型标识 <code>[J]/[C]</code>、双引号以及刊名斜体</strong>。把任意一种格式的引文（或 DOI / BibTeX）粘贴进 <strong><a href="/?sample=apa">{SITE_NAME}</a></strong>，点击顶部标签即可互转，并通过富文本复制将斜体直接带入 Word。
+    </p>
+    <div class="specimen-block">
+      <div class="specimen-hanging">
+        <strong>GB/T 7714—2025：</strong>[1] Silver D, Huang A, Maddison C J, et al. Mastering the game of Go with deep neural networks and tree search[J/OL]. Nature, 2016, 529(7587): 484-489. DOI:10.1038/nature16961.
+      </div>
+      <div class="specimen-hanging">
+        <strong>APA (7th Edition)：</strong>Silver, D., Huang, A., Maddison, C. J., &amp; Hassabis, D. (2016). Mastering the game of Go with deep neural networks and tree search. <i>Nature</i>, <i>529</i>(7587), 484–489. https://doi.org/10.1038/nature16961
+      </div>
+      <div class="specimen-hanging">
+        <strong>IEEE Style：</strong>[1] D. Silver, A. Huang, C. J. Maddison, and D. Hassabis, "Mastering the game of Go with deep neural networks and tree search," <i>Nature</i>, vol. 529, no. 7587, pp. 484–489, 2016, doi: 10.1038/nature16961.
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-try-bar">
+    <span>已预置 APA 与 IEEE 真实引文样例，点击即可实时切换三种格式：</span>
+    <a href="/?sample=apa" class="btn-primary">打开 APA / IEEE / 国标互转工具</a>
+  </div>
+
+  <h2>GB/T 7714—2025、APA 7th 与 IEEE 排版要素对照表</h2>
+  <div class="spec-table-wrap">
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th>著录要素</th>
+          <th>GB/T 7714—2025（中国国标）</th>
+          <th>APA 第 7 版（社科/心理学/教育）</th>
+          <th>IEEE（计算机/电子电气工程）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>姓名顺序与缩写</strong></td>
+          <td>姓在前、名缩写在后且<strong>不加缩写点</strong>：<code>Silver D</code></td>
+          <td>姓在前加逗号，名缩写<strong>加点</strong>并用 <code>&amp;</code> 连接末位：<code>Silver, D.</code></td>
+          <td>名缩写加点在前、姓在后，末位用 <code>and</code>：<code>D. Silver</code></td>
+        </tr>
+        <tr>
+          <td><strong>作者省略阈值</strong></td>
+          <td>超过 <strong>3 人</strong>列前 3 人加 <code>, 等</code> 或 <code>, et al.</code></td>
+          <td><strong>20 人以内全部列出</strong>；21 人及以上列前 19 人 + <code>...</code> + 末位作者</td>
+          <td>1–6 人全部列出；超过 <strong>6 人</strong>仅列第 1 人加 <code><i>et al.</i></code></td>
+        </tr>
+        <tr>
+          <td><strong>年份位置</strong></td>
+          <td>顺序编码制在刊名/出版者之后；著者-出版年制在作者后加逗号</td>
+          <td>紧跟作者之后并用圆括号包裹：<code>(2016).</code></td>
+          <td>置于卷期页码之后、DOI 之前：<code>..., pp. 484–489, 2016</code></td>
+        </tr>
+        <tr>
+          <td><strong>论文题名修饰</strong></td>
+          <td>正体，不加引号，末尾紧接类型代码如 <code>[J]</code>、<code>[C]</code></td>
+          <td>期刊/会议题名正体无引号；图书/学位论文/预印本题名<strong>斜体</strong></td>
+          <td>期刊与会议论文题名加<strong>英文双引号</strong>，逗号包在引号内：<code>"Title,"</code></td>
+        </tr>
+        <tr>
+          <td><strong>斜体（Word 重点）</strong></td>
+          <td>刊名与书名一律<strong>正体</strong>（仅拉丁生物学名等用斜体）</td>
+          <td><strong>期刊名与卷号均斜体</strong>（<code><i>Nature</i>, <i>529</i>(7587)</code>），期号正体</td>
+          <td><strong>期刊名、会议录名、图书名斜体</strong>，<code>vol.</code> / <code>no.</code> 正体</td>
+        </tr>
+        <tr>
+          <td><strong>DOI 写法</strong></td>
+          <td><code>DOI:10.1038/nature16961.</code>（半角冒号后无空格，句末加点）</td>
+          <td><code>https://doi.org/10.1038/nature16961</code>（完整超链接形式，<strong>句末不加点</strong>）</td>
+          <td><code>doi: 10.1038/nature16961.</code>（小写 <code>doi: </code> 加空格，句末加点）</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>高效互转操作步骤与注意事项</h2>
+  <ol>
+    <li>
+      <strong>从英文投稿转回中文大论文（APA / IEEE → 2025 国标）</strong>：将英文 LaTeX 的 <code>.bib</code> 文件或 Word 文末已经排好的 IEEE / APA 列表整段粘贴到 <a href="/?sample=apa">{SITE_NAME}</a>，保持顶部标签在「GB/T 7714—2025」，即可自动去掉 IEEE 双引号、补齐 <code>[J/OL]</code> 与 <code>[C/OL]//</code> 标识，并把超过 3 人的作者表截断为 <code>, et al.</code>。
+    </li>
+    <li>
+      <strong>从中文初稿改投国际期刊（国标 → APA / IEEE）</strong>：如果是纯英文文献，粘贴国标引文后切换到「APA (7th)」或「IEEE」；若原国标引文中第 4 位以后的作者已被省略为 <code>et al.</code>，建议点击条目下方的「用 Crossref 校准」按钮拉取全量作者元数据后再复制。
+    </li>
+    <li>
+      <strong>中文文献投英文 SCI 期刊怎么处理？</strong>：国际英文期刊引用中文文献时，通常要求将作者译为拼音、题名英译并在末尾加 <code>(in Chinese)</code>。建议先在知网查看该论文自带的英文题名与作者拼音，再通过「核对字段」填入后导出 APA 或 IEEE 格式。
+    </li>
+  </ol>
+</GuideLayout>

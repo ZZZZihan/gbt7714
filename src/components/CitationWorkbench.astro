@@ -1,0 +1,1212 @@
+---
+import { SAMPLE_PRESETS } from '../lib/site';
+import { parseLocalCitations, formatCitationList } from '../lib/citation';
+
+const defaultInput = SAMPLE_PRESETS.default.input;
+const initialItems = parseLocalCitations(defaultInput);
+const initialFormatted = formatCitationList(initialItems, {
+  style: 'gbt7714-2025-numeric',
+  includeUrlDoi: true,
+  fullwidthPunctuation: false,
+});
+---
+
+<section class="workbench" aria-label="参考文献格式转换工作台">
+  <div class="workbench-grid">
+    <!-- Left Pane: Input -->
+    <div class="pane input-pane">
+      <div class="pane-head">
+        <div class="pane-title-group">
+          <label for="citation-input" class="pane-label">输入文献（支持单条或批量粘贴）</label>
+          <span id="detected-kind" class="detected-pill">已识别：混合示例（3 条）</span>
+        </div>
+        <button type="button" id="btn-clear" class="btn-ghost" title="清空输入内容">清空</button>
+      </div>
+
+      <div class="sample-bar" role="group" aria-label="填入示例数据">
+        <span class="sample-caption">填入示例：</span>
+        <button type="button" class="sample-chip is-active" data-sample="default">新国标混合</button>
+        <button type="button" class="sample-chip" data-sample="doi">批量 DOI / arXiv</button>
+        <button type="button" class="sample-chip" data-sample="cnki">知网乱码修复</button>
+        <button type="button" class="sample-chip" data-sample="bibtex">BibTeX</button>
+        <button type="button" class="sample-chip" data-sample="ris">Zotero RIS</button>
+        <button type="button" class="sample-chip" data-sample="apa">APA / IEEE 互转</button>
+      </div>
+
+      <textarea
+        id="citation-input"
+        class="input-textarea"
+        rows="12"
+        spellcheck="false"
+        placeholder="在此粘贴以下任意内容（每行一条或多段批量粘贴）：
+1. DOI 或链接，如 10.1038/nature13308、https://arxiv.org/abs/1706.03762
+2. BibTeX (@article{...}) 或 Zotero / EndNote 导出的 RIS (TY - JOUR)
+3. 知网导出的格式错乱引文（自动去空格、合并断行、升级 2025 版）
+4. 已排版的 APA、IEEE 或旧版国标参考文献"
+      >{defaultInput}</textarea>
+
+      <div class="input-actions">
+        <button type="button" id="btn-convert" class="btn-primary">
+          识别并转换
+        </button>
+        <span id="status-hint" class="status-hint" role="status" aria-live="polite">
+          本地实时处理中，按 Ctrl/⌘ + Enter 可联网拉取 DOI 元数据
+        </span>
+      </div>
+    </div>
+
+    <!-- Right Pane: Manuscript Proof Sheet -->
+    <div class="pane output-pane">
+      <div class="style-tabs-bar" role="tablist" aria-label="目标参考文献格式">
+        <button
+          type="button"
+          role="tab"
+          aria-selected="true"
+          class="style-tab is-active"
+          data-style-group="gbt"
+        >
+          GB/T 7714—2025
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected="false"
+          class="style-tab"
+          data-style-group="apa-7"
+        >
+          APA (7th)
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected="false"
+          class="style-tab"
+          data-style-group="ieee"
+        >
+          IEEE
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected="false"
+          class="style-tab"
+          data-style-group="bibtex"
+        >
+          BibTeX
+        </button>
+      </div>
+
+      <div id="gbt-suboptions" class="suboptions-bar">
+        <div class="suboption-radios" role="radiogroup" aria-label="国标著录体例">
+          <label class="radio-pill">
+            <input type="radio" name="gbt-variant" value="gbt7714-2025-numeric" checked />
+            <span>顺序编码制 [1]</span>
+          </label>
+          <label class="radio-pill">
+            <input type="radio" name="gbt-variant" value="gbt7714-2025-author-date" />
+            <span>著者-出版年制</span>
+          </label>
+          <label class="radio-pill">
+            <input type="radio" name="gbt-variant" value="gbt7714-2015-numeric" />
+            <span>对比 2015 旧版</span>
+          </label>
+        </div>
+
+        <div class="suboption-checks">
+          <label class="check-item">
+            <input type="checkbox" id="opt-include-url" checked />
+            <span>保留 DOI / 网址</span>
+          </label>
+          <label class="check-item" id="wrap-fullwidth">
+            <input type="checkbox" id="opt-fullwidth" />
+            <span>中文全角标点</span>
+          </label>
+          <label class="check-item" id="wrap-sort">
+            <input type="checkbox" id="opt-sort" />
+            <span id="opt-sort-label">按著者拼音/字母排序</span>
+          </label>
+          <label class="check-item" id="wrap-dedupe">
+            <input type="checkbox" id="opt-dedupe" />
+            <span>自动合并重复文献</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="error-banner" class="error-banner" hidden></div>
+
+      <div class="copy-toolbar">
+        <div class="copy-toolbar-left">
+          <button type="button" id="btn-copy-word" class="btn-primary">
+            复制全部（保留 Word 斜体）
+          </button>
+          <button type="button" id="btn-copy-plain" class="btn-secondary">
+            复制纯文本
+          </button>
+          <button type="button" id="btn-download" class="btn-secondary">
+            导出文件
+          </button>
+        </div>
+        <span id="copy-toast" class="copy-toast" role="status" aria-live="polite"></span>
+      </div>
+
+      <div id="proof-sheet" class="proof-sheet">
+        <div class="proof-sheet-header">
+          <span id="sheet-spec-label">参考文献表预览 · GB/T 7714—2025 顺序编码制</span>
+          <span id="sheet-count">{initialFormatted.length} 条</span>
+        </div>
+
+        <div id="output-list" class="output-list">
+          {initialFormatted.map((entry, idx) => (
+            <div class="entry-card" data-entry-idx={idx}>
+              <p class="entry-line" set:html={entry.html} />
+              {entry.notes.length > 0 && (
+                <div class="entry-notes">
+                  {entry.notes.map((n) => (
+                    <span class="fix-tag">{n}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { SAMPLE_PRESETS } from '../lib/site';
+  import {
+    detectInputKind,
+    parseLocalCitations,
+    parseAndResolveCitations,
+    resolveDoiToItem,
+    formatCitationList,
+    parseAuthor,
+    sortCitationItems,
+    deduplicateCitationItems,
+    type CitationItem,
+    type OutputStyle,
+    type ResourceType,
+  } from '../lib/citation';
+
+  const TYPE_LABELS: Array<{ value: ResourceType; label: string }> = [
+    { value: 'article-journal', label: '期刊论文 [J]' },
+    { value: 'paper-conference', label: '会议论文 [C]' },
+    { value: 'book', label: '图书/专著 [M]' },
+    { value: 'chapter', label: '图书析出章节 [M//]' },
+    { value: 'thesis', label: '学位论文 [D]' },
+    { value: 'preprint', label: '预印本 [PP]（2025新增）' },
+    { value: 'dataset', label: '数据集 [DS]' },
+    { value: 'webpage', label: '网站/网页 [EB/OL]' },
+    { value: 'report', label: '报告 [R]' },
+    { value: 'standard', label: '标准 [S]' },
+    { value: 'patent', label: '专利 [P]' },
+    { value: 'article-newspaper', label: '报纸文章 [N]' },
+    { value: 'archive', label: '档案 [A]' },
+    { value: 'map', label: '地图 [CM]' },
+  ];
+
+  const STYLE_SPEC_NAMES: Record<OutputStyle, string> = {
+    'gbt7714-2025-numeric': '参考文献表预览 · GB/T 7714—2025 顺序编码制',
+    'gbt7714-2025-author-date': '参考文献表预览 · GB/T 7714—2025 著者-出版年制',
+    'gbt7714-2015-numeric': '参考文献表预览 · GB/T 7714—2015 旧版对照（已废止）',
+    'apa-7': '参考文献表预览 · APA 7th Edition（含期刊/书名斜体）',
+    ieee: '参考文献表预览 · IEEE Reference Style（含期刊/会议斜体）',
+    bibtex: 'BibTeX 源码预览（可直接导入 LaTeX / Zotero）',
+  };
+
+  const inputEl = document.getElementById('citation-input') as HTMLTextAreaElement;
+  const detectedEl = document.getElementById('detected-kind') as HTMLElement;
+  const statusHintEl = document.getElementById('status-hint') as HTMLElement;
+  const btnConvert = document.getElementById('btn-convert') as HTMLButtonElement;
+  const btnClear = document.getElementById('btn-clear') as HTMLButtonElement;
+  const btnCopyWord = document.getElementById('btn-copy-word') as HTMLButtonElement;
+  const btnCopyPlain = document.getElementById('btn-copy-plain') as HTMLButtonElement;
+  const btnDownload = document.getElementById('btn-download') as HTMLButtonElement;
+  const copyToast = document.getElementById('copy-toast') as HTMLElement;
+  const errorBanner = document.getElementById('error-banner') as HTMLElement;
+  const outputListEl = document.getElementById('output-list') as HTMLElement;
+  const sheetSpecLabel = document.getElementById('sheet-spec-label') as HTMLElement;
+  const sheetCount = document.getElementById('sheet-count') as HTMLElement;
+  const gbtSuboptions = document.getElementById('gbt-suboptions') as HTMLElement;
+  const optIncludeUrl = document.getElementById('opt-include-url') as HTMLInputElement;
+  const optFullwidth = document.getElementById('opt-fullwidth') as HTMLInputElement;
+  const wrapFullwidth = document.getElementById('wrap-fullwidth') as HTMLElement;
+  const optSort = document.getElementById('opt-sort') as HTMLInputElement;
+  const optSortLabel = document.getElementById('opt-sort-label') as HTMLElement;
+  const optDedupe = document.getElementById('opt-dedupe') as HTMLInputElement;
+
+  let currentItems: CitationItem[] = parseLocalCitations(inputEl.value);
+  let activeGroup: 'gbt' | 'apa-7' | 'ieee' | 'bibtex' = 'gbt';
+  let activeGbtVariant: OutputStyle = 'gbt7714-2025-numeric';
+  let openEditorId: string | null = null;
+  let activeController: AbortController | null = null;
+  let debounceTimer: number | undefined;
+
+  function getEffectiveStyle(): OutputStyle {
+    return activeGroup === 'gbt' ? activeGbtVariant : activeGroup;
+  }
+
+  function showToast(msg: string) {
+    copyToast.textContent = msg;
+    window.setTimeout(() => {
+      if (copyToast.textContent === msg) copyToast.textContent = '';
+    }, 2600);
+  }
+
+  function setError(errors: string[]) {
+    if (!errors.length) {
+      errorBanner.hidden = true;
+      errorBanner.textContent = '';
+      return;
+    }
+    errorBanner.hidden = false;
+    errorBanner.textContent = errors.join('；');
+  }
+
+  function escapeAttr(val?: string): string {
+    return (val || '')
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function authorsToEditableString(item: CitationItem): string {
+    const base = item.authors
+      .map((a) => {
+        if (a.literal) return a.literal;
+        if (a.isChinese) return a.family || '';
+        return a.given ? `${a.family}, ${a.given}` : a.family || '';
+      })
+      .filter(Boolean)
+      .join('; ');
+    return item.hasEtAl ? `${base}; et al.` : base;
+  }
+
+  function getPreparedItems(): { items: CitationItem[]; dedupeCount: number } {
+    let items = currentItems.map((it) => ({
+      ...it,
+      authors: it.authors.map((a) => ({ ...a })),
+      notes: it.notes ? [...it.notes] : [],
+    }));
+
+    let dedupeCount = 0;
+    if (optDedupe?.checked) {
+      const res = deduplicateCitationItems(items);
+      items = res.items;
+      dedupeCount = res.duplicatesRemoved;
+    }
+
+    if (optSort?.checked) {
+      const style = getEffectiveStyle();
+      items = sortCitationItems(items, {
+        order: 'zh-first',
+        disambiguateYear: style === 'gbt7714-2025-author-date',
+      });
+    }
+
+    return { items, dedupeCount };
+  }
+
+  function renderOutput() {
+    const style = getEffectiveStyle();
+    sheetSpecLabel.textContent = STYLE_SPEC_NAMES[style];
+    gbtSuboptions.hidden = activeGroup === 'bibtex';
+    const radiosWrap = gbtSuboptions.querySelector('.suboption-radios') as HTMLElement;
+    radiosWrap.hidden = activeGroup !== 'gbt';
+    wrapFullwidth.hidden = activeGroup !== 'gbt';
+
+    if (optSortLabel) {
+      optSortLabel.textContent =
+        style === 'gbt7714-2025-author-date'
+          ? '著者字顺与年份消歧 (a/b/c)'
+          : '按著者拼音/字母排序';
+    }
+
+    const { items: preparedItems, dedupeCount } = getPreparedItems();
+
+    const formatted = formatCitationList(preparedItems, {
+      style,
+      includeUrlDoi: optIncludeUrl.checked,
+      fullwidthPunctuation: optFullwidth.checked,
+    });
+
+    sheetCount.textContent =
+      dedupeCount > 0
+        ? `${formatted.length} 条（已合并 ${dedupeCount} 条重复）`
+        : `${formatted.length} 条`;
+
+    if (formatted.length === 0) {
+      outputListEl.innerHTML =
+        '<div class="empty-state">在左侧粘贴 DOI、BibTeX、RIS 或参考文献文本后，转换结果将在此处按论文排版样式呈现。</div>';
+      return;
+    }
+
+    const isBibtexOut = style === 'bibtex';
+
+    outputListEl.innerHTML = formatted
+      .map((entry, idx) => {
+        const notesHtml = entry.notes.length
+          ? `<div class="entry-notes">${entry.notes
+              .map((n) => `<span class="fix-tag">${escapeAttr(n)}</span>`)
+              .join('')}</div>`
+          : '';
+
+        const canEnrichDoi =
+          entry.item.doi && entry.item.sourceKind !== 'doi'
+            ? `<button type="button" class="entry-btn" data-action="enrich-doi" data-item-id="${entry.item.id}">用 Crossref 校准</button>`
+            : '';
+
+        const isEditing = openEditorId === entry.item.id;
+        const editorHtml = isEditing ? buildEditorHtml(entry.item) : '';
+
+        return `
+          <div class="entry-card" data-entry-idx="${idx}" data-item-id="${entry.item.id}">
+            ${
+              isBibtexOut
+                ? `<pre class="entry-pre">${entry.html}</pre>`
+                : `<p class="entry-line">${entry.html}</p>`
+            }
+            <div class="entry-meta-row">
+              ${notesHtml}
+              <div class="entry-actions">
+                ${canEnrichDoi}
+                <button type="button" class="entry-btn" data-action="copy-one" data-idx="${idx}">复制单条</button>
+                <button type="button" class="entry-btn ${isEditing ? 'is-open' : ''}" data-action="toggle-edit" data-item-id="${entry.item.id}">
+                  ${isEditing ? '收起字段' : '核对字段'}
+                </button>
+              </div>
+            </div>
+            ${editorHtml}
+          </div>
+        `;
+      })
+      .join('');
+  }
+
+  function buildEditorHtml(item: CitationItem): string {
+    const typeOptions = TYPE_LABELS.map(
+      (opt) =>
+        `<option value="${opt.value}" ${item.type === opt.value ? 'selected' : ''}>${opt.label}</option>`
+    ).join('');
+
+    return `
+      <div class="field-editor" data-editor-item-id="${item.id}">
+        <div class="editor-grid">
+          <label>
+            <span>文献类型</span>
+            <select data-field="type">${typeOptions}</select>
+          </label>
+          <label>
+            <span>年份 / 完整日期</span>
+            <input type="text" data-field="dateOrYear" value="${escapeAttr(item.date || item.year)}" placeholder="如 2024 或 2024-05-09" />
+          </label>
+          <label class="span-2">
+            <span>责任者（多位用分号 ; 分隔，姓在前名在后）</span>
+            <input type="text" data-field="authors" value="${escapeAttr(authorsToEditableString(item))}" placeholder="如 Einstein, Albert; 张伯伟" />
+          </label>
+          <label class="span-2">
+            <span>题名</span>
+            <input type="text" data-field="title" value="${escapeAttr(item.title)}" />
+          </label>
+          <label>
+            <span>刊名 / 会议录 / 平台</span>
+            <input type="text" data-field="containerTitle" value="${escapeAttr(item.containerTitle)}" />
+          </label>
+          <label>
+            <span>出版者 / 学位授予单位</span>
+            <input type="text" data-field="publisher" value="${escapeAttr(item.publisher)}" />
+          </label>
+          <label>
+            <span>出版地</span>
+            <input type="text" data-field="place" value="${escapeAttr(item.place)}" placeholder="如 北京 / New York" />
+          </label>
+          <label>
+            <span>卷 / 期 / 页码</span>
+            <div class="triple-inputs">
+              <input type="text" data-field="volume" value="${escapeAttr(item.volume)}" placeholder="卷" />
+              <input type="text" data-field="issue" value="${escapeAttr(item.issue)}" placeholder="期" />
+              <input type="text" data-field="pages" value="${escapeAttr(item.pages || item.articleNumber)}" placeholder="页码" />
+            </div>
+          </label>
+          <label>
+            <span>DOI（不含前缀）</span>
+            <input type="text" data-field="doi" value="${escapeAttr(item.doi)}" placeholder="10.xxxx/..." />
+          </label>
+          <label>
+            <span>获取路径 URL / 引用日期</span>
+            <div class="dual-inputs">
+              <input type="text" data-field="url" value="${escapeAttr(item.url)}" placeholder="https://..." />
+              <input type="text" data-field="accessedDate" value="${escapeAttr(item.accessedDate)}" placeholder="YYYY-MM-DD" />
+            </div>
+          </label>
+        </div>
+      </div>
+    `;
+  }
+
+  function updateDetectionBadge() {
+    const info = detectInputKind(inputEl.value);
+    detectedEl.textContent = info.kind === 'plain' && !inputEl.value.trim() ? '等待输入' : `已识别：${info.label}`;
+    if (info.hasNetworkDoi) {
+      btnConvert.textContent = '联网查询 DOI 并生成';
+      statusHintEl.textContent = '检测到 DOI / arXiv 标识符，点击左侧按钮直连 Crossref / DataCite 获取元数据';
+    } else {
+      btnConvert.textContent = '立即转换';
+      statusHintEl.textContent = '本地浏览器实时解析，数据不上传服务器';
+    }
+    return info;
+  }
+
+  async function runFullConvert(allowNetwork = true) {
+    setError([]);
+    const info = updateDetectionBadge();
+
+    if (!inputEl.value.trim()) {
+      currentItems = [];
+      renderOutput();
+      return;
+    }
+
+    if (!allowNetwork || !info.hasNetworkDoi) {
+      currentItems = parseLocalCitations(inputEl.value);
+      openEditorId = null;
+      renderOutput();
+      return;
+    }
+
+    activeController?.abort();
+    activeController = new AbortController();
+    btnConvert.disabled = true;
+    const origText = btnConvert.textContent;
+
+    try {
+      const { items, errors } = await parseAndResolveCitations(inputEl.value, {
+        signal: activeController.signal,
+        onProgress: (done, total) => {
+          btnConvert.textContent = `正在查询 (${done}/${total})...`;
+        },
+      });
+      currentItems = items;
+      openEditorId = null;
+      setError(errors);
+      renderOutput();
+      statusHintEl.textContent = `已完成 ${items.length} 条文献解析`;
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') {
+        setError([err instanceof Error ? err.message : String(err)]);
+      }
+    } finally {
+      btnConvert.disabled = false;
+      btnConvert.textContent = origText;
+    }
+  }
+
+  async function copyEntriesToClipboard(richWord: boolean, targetEntries?: ReturnType<typeof formatCitationList>) {
+    const style = getEffectiveStyle();
+    const { items: preparedItems } = getPreparedItems();
+    const list =
+      targetEntries ||
+      formatCitationList(preparedItems, {
+        style,
+        includeUrlDoi: optIncludeUrl.checked,
+        fullwidthPunctuation: optFullwidth.checked,
+      });
+
+    if (!list.length) {
+      showToast('当前没有可复制的文献');
+      return;
+    }
+
+    const plainText = list.map((e) => e.text).join('\n');
+
+    if (!richWord || style === 'bibtex' || typeof ClipboardItem === 'undefined') {
+      await navigator.clipboard.writeText(plainText);
+      showToast(`已复制 ${list.length} 条纯文本`);
+      return;
+    }
+
+    // Build Word-friendly clean HTML: 五号字 (10.5pt), Times New Roman + 宋体, 2字符悬挂缩进, 保留 <i> 斜体
+    const htmlParagraphs = list
+      .map(
+        (e) =>
+          `<p style="margin:0 0 4pt 21pt;text-indent:-21pt;line-height:1.5;font-family:'Times New Roman','SimSun','Songti SC',serif;font-size:10.5pt;color:#000000;">${e.html}</p>`
+      )
+      .join('\n');
+    const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>${htmlParagraphs}</body></html>`;
+
+    try {
+      const item = new ClipboardItem({
+        'text/html': new Blob([fullHtml], { type: 'text/html' }),
+        'text/plain': new Blob([plainText], { type: 'text/plain' }),
+      });
+      await navigator.clipboard.write([item]);
+      showToast(`已复制 ${list.length} 条（粘贴到 Word 自动保留斜体与悬挂缩进）`);
+    } catch {
+      await navigator.clipboard.writeText(plainText);
+      showToast(`已复制 ${list.length} 条文本`);
+    }
+  }
+
+  // Event Listeners
+  inputEl.addEventListener('input', () => {
+    const info = updateDetectionBadge();
+    window.clearTimeout(debounceTimer);
+    if (!info.hasNetworkDoi) {
+      debounceTimer = window.setTimeout(() => {
+        runFullConvert(false);
+      }, 140);
+    }
+  });
+
+  inputEl.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault();
+      runFullConvert(true);
+    }
+  });
+
+  btnConvert.addEventListener('click', () => runFullConvert(true));
+
+  btnClear.addEventListener('click', () => {
+    inputEl.value = '';
+    currentItems = [];
+    openEditorId = null;
+    setError([]);
+    document.querySelectorAll('.sample-chip').forEach((c) => c.classList.remove('is-active'));
+    updateDetectionBadge();
+    renderOutput();
+    inputEl.focus();
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('.sample-chip').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const key = chip.dataset.sample || 'default';
+      const preset = SAMPLE_PRESETS[key];
+      if (!preset) return;
+      document.querySelectorAll('.sample-chip').forEach((c) => c.classList.remove('is-active'));
+      chip.classList.add('is-active');
+      inputEl.value = preset.input;
+      runFullConvert(true);
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('.style-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.style-tab').forEach((t) => {
+        t.classList.remove('is-active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('is-active');
+      tab.setAttribute('aria-selected', 'true');
+      activeGroup = (tab.dataset.styleGroup as typeof activeGroup) || 'gbt';
+      renderOutput();
+    });
+  });
+
+  document.querySelectorAll<HTMLInputElement>('input[name="gbt-variant"]').forEach((radio) => {
+    radio.addEventListener('change', () => {
+      if (radio.checked) {
+        activeGbtVariant = radio.value as OutputStyle;
+        if (activeGbtVariant === 'gbt7714-2025-author-date' && optSort) {
+          optSort.checked = true;
+        }
+        renderOutput();
+      }
+    });
+  });
+
+  optIncludeUrl.addEventListener('change', renderOutput);
+  optFullwidth.addEventListener('change', renderOutput);
+  optSort?.addEventListener('change', renderOutput);
+  optDedupe?.addEventListener('change', renderOutput);
+
+  btnCopyWord.addEventListener('click', () => copyEntriesToClipboard(true));
+  btnCopyPlain.addEventListener('click', () => copyEntriesToClipboard(false));
+
+  btnDownload.addEventListener('click', () => {
+    const style = getEffectiveStyle();
+    const { items: preparedItems } = getPreparedItems();
+    const list = formatCitationList(preparedItems, {
+      style,
+      includeUrlDoi: optIncludeUrl.checked,
+      fullwidthPunctuation: optFullwidth.checked,
+    });
+    if (!list.length) {
+      showToast('没有可导出的内容');
+      return;
+    }
+    const ext = style === 'bibtex' ? 'bib' : 'txt';
+    const content = list.map((e) => e.text).join(style === 'bibtex' ? '\n\n' : '\n');
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `references-${style}.${ext}`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`已导出 references-${style}.${ext}`);
+  });
+
+  // Delegated clicks & edits inside output list
+  outputListEl.addEventListener('click', async (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-action]');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    const itemId = btn.dataset.itemId;
+    const idx = Number(btn.dataset.idx);
+
+    if (action === 'copy-one') {
+      const { items: preparedItems } = getPreparedItems();
+      if (Number.isNaN(idx) || !preparedItems[idx]) return;
+      const all = formatCitationList(preparedItems, {
+        style: getEffectiveStyle(),
+        includeUrlDoi: optIncludeUrl.checked,
+        fullwidthPunctuation: optFullwidth.checked,
+      });
+      await copyEntriesToClipboard(true, [all[idx]]);
+    } else if (action === 'toggle-edit') {
+      if (!itemId) return;
+      openEditorId = openEditorId === itemId ? null : itemId;
+      renderOutput();
+    } else if (action === 'enrich-doi') {
+      if (!itemId) return;
+      const item = currentItems.find((it) => it.id === itemId);
+      if (!item || !item.doi) return;
+      btn.disabled = true;
+      btn.textContent = '校准中...';
+      try {
+        const enriched = await resolveDoiToItem(item.doi);
+        Object.assign(item, enriched, {
+          id: item.id,
+          notes: ['已通过 Crossref / DataCite 官方元数据完成校准'],
+        });
+        renderOutput();
+      } catch (err) {
+        setError([err instanceof Error ? err.message : String(err)]);
+        btn.disabled = false;
+        btn.textContent = '用 Crossref 校准';
+      }
+    }
+  });
+
+  outputListEl.addEventListener('input', (e) => {
+    const target = e.target as HTMLInputElement | HTMLSelectElement;
+    const editor = target.closest<HTMLElement>('.field-editor');
+    if (!editor) return;
+    const itemId = editor.dataset.editorItemId;
+    const item = currentItems.find((it) => it.id === itemId);
+    const field = target.dataset.field;
+    if (!item || !field) return;
+
+    const val = target.value.trim();
+    if (field === 'type') {
+      item.type = val as ResourceType;
+    } else if (field === 'dateOrYear') {
+      if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(val)) {
+        item.date = val;
+        item.year = val.slice(0, 4);
+      } else {
+        item.year = val;
+        item.date = undefined;
+      }
+    } else if (field === 'authors') {
+      const parts = val.split(/[;；]+/).map((s) => s.trim()).filter(Boolean);
+      let etAl = false;
+      item.authors = parts
+        .filter((p) => {
+          if (/^(et\s*al\.?|等)$/i.test(p)) {
+            etAl = true;
+            return false;
+          }
+          return true;
+        })
+        .map(parseAuthor);
+      item.hasEtAl = etAl || undefined;
+    } else if (field === 'title') item.title = val;
+    else if (field === 'containerTitle') item.containerTitle = val || undefined;
+    else if (field === 'publisher') item.publisher = val || undefined;
+    else if (field === 'place') item.place = val || undefined;
+    else if (field === 'volume') item.volume = val || undefined;
+    else if (field === 'issue') item.issue = val || undefined;
+    else if (field === 'pages') {
+      item.pages = val || undefined;
+      item.articleNumber = undefined;
+    } else if (field === 'doi') {
+      item.doi = val || undefined;
+      item.isOnline = Boolean(item.doi || item.url);
+    } else if (field === 'url') {
+      item.url = val || undefined;
+      item.isOnline = Boolean(item.doi || item.url);
+    } else if (field === 'accessedDate') {
+      item.accessedDate = val || undefined;
+    }
+
+    // Update only the rendered line without losing focus inside input!
+    const { items: preparedItems } = getPreparedItems();
+    const allFormatted = formatCitationList(preparedItems, {
+      style: getEffectiveStyle(),
+      includeUrlDoi: optIncludeUrl.checked,
+      fullwidthPunctuation: optFullwidth.checked,
+    });
+    const card = editor.closest('.entry-card');
+    const prepIdx = preparedItems.findIndex((it) => it.id === itemId);
+    const lineEl = card?.querySelector('.entry-line, .entry-pre');
+    if (lineEl && prepIdx >= 0 && allFormatted[prepIdx]) {
+      lineEl.innerHTML = allFormatted[prepIdx].html;
+    }
+  });
+
+  // Handle Deep Links (?sample=doi&style=apa-7)
+  const params = new URLSearchParams(window.location.search);
+  const sampleParam = params.get('sample');
+  const styleParam = params.get('style');
+
+  if (styleParam) {
+    if (styleParam === 'apa-7' || styleParam === 'ieee' || styleParam === 'bibtex') {
+      const tab = document.querySelector<HTMLButtonElement>(`.style-tab[data-style-group="${styleParam}"]`);
+      tab?.click();
+    } else if (styleParam.startsWith('gbt7714-')) {
+      const radio = document.querySelector<HTMLInputElement>(`input[name="gbt-variant"][value="${styleParam}"]`);
+      if (radio) {
+        radio.checked = true;
+        activeGbtVariant = styleParam as OutputStyle;
+        if (activeGbtVariant === 'gbt7714-2025-author-date' && optSort) {
+          optSort.checked = true;
+        }
+      }
+    }
+  }
+
+  if (sampleParam && SAMPLE_PRESETS[sampleParam]) {
+    const chip = document.querySelector<HTMLButtonElement>(`.sample-chip[data-sample="${sampleParam}"]`);
+    if (chip) {
+      chip.click();
+    } else {
+      inputEl.value = SAMPLE_PRESETS[sampleParam].input;
+      runFullConvert(true);
+    }
+  } else {
+    renderOutput();
+  }
+</script>
+
+<style>
+  .workbench {
+    margin: 1rem 0 2.5rem;
+  }
+
+  .workbench-grid {
+    display: grid;
+    grid-template-columns: 5fr 6fr;
+    gap: 1.15rem;
+    align-items: start;
+  }
+
+  .pane {
+    background: var(--sheet);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+  }
+
+  .input-pane {
+    padding: 1rem 1.05rem;
+  }
+
+  .output-pane {
+    border-top: 3px solid var(--std-blue);
+    padding: 0.9rem 1.05rem 1.1rem;
+  }
+
+  .pane-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .pane-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  .pane-label {
+    font-weight: 700;
+    font-size: 0.94rem;
+    color: var(--ink);
+  }
+
+  .detected-pill {
+    font-size: 0.76rem;
+    padding: 0.14rem 0.48rem;
+    border-radius: 3px;
+    background: var(--std-blue-tint);
+    color: var(--std-blue);
+    border: 1px solid var(--std-blue-border);
+    font-weight: 500;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--ink-muted);
+    font-size: 0.82rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .btn-ghost:hover {
+    background: var(--sheet-subtle);
+    color: var(--ink);
+  }
+
+  .sample-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.38rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.65rem;
+  }
+
+  .sample-caption {
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+  }
+
+  .sample-chip {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    color: var(--ink-secondary);
+    font-size: 0.78rem;
+    padding: 0.22rem 0.52rem;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .sample-chip:hover {
+    border-color: var(--std-blue);
+    color: var(--std-blue);
+  }
+
+  .sample-chip.is-active {
+    background: var(--std-blue-tint);
+    border-color: var(--std-blue);
+    color: var(--std-blue);
+    font-weight: 600;
+  }
+
+  .input-textarea {
+    width: 100%;
+    min-height: 270px;
+    resize: vertical;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 0.75rem 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.84rem;
+    line-height: 1.58;
+    color: var(--ink);
+    background: #fcfdff;
+  }
+
+  .input-textarea:focus {
+    outline: none;
+    border-color: var(--std-blue);
+    box-shadow: 0 0 0 2px rgba(21, 75, 132, 0.14);
+  }
+
+  .input-actions {
+    margin-top: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .status-hint {
+    font-size: 0.79rem;
+    color: var(--ink-muted);
+  }
+
+  /* Output Tabs & Sub-options */
+  .style-tabs-bar {
+    display: flex;
+    gap: 0.35rem;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.65rem;
+    flex-wrap: wrap;
+  }
+
+  .style-tab {
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 0.38rem 0.78rem;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ink-secondary);
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .style-tab:hover {
+    background: var(--sheet-subtle);
+    color: var(--ink);
+  }
+
+  .style-tab.is-active {
+    background: var(--std-blue);
+    color: #ffffff;
+  }
+
+  .suboptions-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+    padding: 0.62rem 0;
+    border-bottom: 1px solid var(--rule-subtle);
+    font-size: 0.82rem;
+  }
+
+  .suboption-radios,
+  .suboption-checks {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+  }
+
+  .radio-pill,
+  .check-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--ink-secondary);
+    cursor: pointer;
+  }
+
+  .error-banner {
+    margin-top: 0.65rem;
+    padding: 0.6rem 0.8rem;
+    background: var(--danger-red-tint);
+    color: var(--danger-red);
+    border: 1px solid #fecaca;
+    border-radius: 4px;
+    font-size: 0.84rem;
+  }
+
+  .copy-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin: 0.75rem 0;
+  }
+
+  .copy-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  .copy-toast {
+    font-size: 0.82rem;
+    color: var(--seal-jade);
+    font-weight: 600;
+  }
+
+  /* Manuscript Proof Sheet */
+  .proof-sheet {
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: #ffffff;
+    min-height: 270px;
+  }
+
+  .proof-sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.48rem 0.85rem;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule-subtle);
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+  }
+
+  .output-list {
+    padding: 0.65rem 0.9rem;
+  }
+
+  :global(.entry-card) {
+    padding: 0.62rem 0;
+    border-bottom: 1px dashed var(--rule-subtle);
+  }
+
+  :global(.entry-card:last-child) {
+    border-bottom: none;
+  }
+
+  :global(.entry-line) {
+    margin: 0;
+    font-family: var(--font-specimen);
+    font-size: 1.01rem;
+    line-height: 1.72;
+    color: #111827;
+    padding-left: 2.1em;
+    text-indent: -2.1em;
+    word-break: break-word;
+  }
+
+  :global(.entry-pre) {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.81rem;
+    line-height: 1.52;
+    background: var(--paper);
+    padding: 0.6rem 0.75rem;
+    border-radius: 3px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+  }
+
+  :global(.entry-meta-row) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.35rem;
+    padding-left: 2.1em;
+  }
+
+  :global(.entry-notes) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  :global(.fix-tag) {
+    font-size: 0.73rem;
+    padding: 0.1rem 0.42rem;
+    border-radius: 3px;
+    background: var(--seal-jade-tint);
+    color: var(--seal-jade);
+    border: 1px solid var(--seal-jade-border);
+  }
+
+  :global(.entry-actions) {
+    display: flex;
+    gap: 0.35rem;
+    margin-left: auto;
+  }
+
+  :global(.entry-btn) {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    color: var(--ink-secondary);
+    font-size: 0.74rem;
+    padding: 0.15rem 0.48rem;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+  }
+
+  :global(.entry-btn:hover),
+  :global(.entry-btn.is-open) {
+    border-color: var(--std-blue);
+    color: var(--std-blue);
+    background: var(--std-blue-tint);
+  }
+
+  :global(.field-editor) {
+    margin: 0.6rem 0 0.25rem;
+    padding: 0.75rem;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+  }
+
+  :global(.editor-grid) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem 0.7rem;
+  }
+
+  :global(.editor-grid label) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    font-size: 0.76rem;
+    color: var(--ink-secondary);
+  }
+
+  :global(.editor-grid .span-2) {
+    grid-column: span 2;
+  }
+
+  :global(.editor-grid input),
+  :global(.editor-grid select) {
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 0.34rem 0.48rem;
+    font-size: 0.82rem;
+    font-family: var(--font-sans);
+    background: #ffffff;
+    color: var(--ink);
+  }
+
+  :global(.triple-inputs) {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.4fr;
+    gap: 0.35rem;
+  }
+
+  :global(.dual-inputs) {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 0.35rem;
+  }
+
+  :global(.empty-state) {
+    padding: 2.2rem 1rem;
+    text-align: center;
+    color: var(--ink-muted);
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 980px) {
+    .workbench-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .input-textarea {
+      min-height: 190px;
+    }
+
+    :global(.entry-meta-row) {
+      padding-left: 0;
+    }
+
+    :global(.editor-grid) {
+      grid-template-columns: 1fr;
+    }
+
+    :global(.editor-grid .span-2) {
+      grid-column: span 1;
+    }
+  }
+</style>

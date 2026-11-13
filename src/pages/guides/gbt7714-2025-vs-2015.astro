@@ -1,0 +1,222 @@
+---
+import GuideLayout from '../../components/GuideLayout.astro';
+import { SITE_NAME, OFFICIAL_STD_LINKS } from '../../lib/site';
+
+const title = 'GB/T 7714—2025 和 2015 版有什么区别（新旧国标完整对照表）';
+const description =
+  '基于国家标准全文公开系统整理 GB/T 7714—2025（2026-07-01 实施）与 GB/T 7714—2015 的全部核心差异对照表：作者姓氏首字母大写、新增预印本 [PP]、[EB] 改为网站网页、引用日期收窄与 13 类文献示例。';
+
+const faqs = [
+  {
+    q: 'GB/T 7714—2025 什么时候发布和正式实施？2015 版废止了吗？',
+    a: '根据国家市场监督管理总局、国家标准化管理委员会发布的全国标准信息公共服务平台公告，GB/T 7714—2025《信息与文献 参考文献著录规则》于 2025 年 12 月 2 日发布，已于 2026 年 7 月 1 日正式实施；同日旧版 GB/T 7714—2015 正式废止。',
+  },
+  {
+    q: '一眼判断一份参考文献用的是 2025 版还是 2015 版，看哪里最快？',
+    a: '看英文或拼音作者的姓氏大小写最快：2015 版要求姓氏全大写（如 EINSTEIN A、LI Jiangning）；2025 版第 5.3 与 7.1.1 节改为姓氏仅首字母大写（如 Einstein A、Li Jiangning）。此外，看 arXiv 论文是否使用了 2025 新增代码 [PP/OL] 也能立刻区分。',
+  },
+  {
+    q: '怎么把手头按 2015 版排好的参考文献批量改成 2025 版？',
+    a: '直接把已有的 2015 版参考文献整段粘贴进「国标引文 7714」（首页工作台），工具会自动把全大写姓氏转为首字母大写、剔除在线期刊多余的 [引用日期]、规范 DOI: 永久标识符写法，并在右侧支持一键切换 2025 版与 2015 版对照查看。',
+  },
+];
+---
+
+<GuideLayout
+  title={title}
+  description={description}
+  canonicalPath="/guides/gbt7714-2025-vs-2015/"
+  faqs={faqs}
+  citations={[
+    OFFICIAL_STD_LINKS.openstd2025,
+    OFFICIAL_STD_LINKS.samrPlan2025,
+    OFFICIAL_STD_LINKS.samr2015Abolished,
+  ]}
+>
+  <div class="direct-answer-box">
+    <div class="direct-answer-title">一页结论（最核心的 5 项变化）</div>
+    <p>
+      国家标准 <strong>GB/T 7714—2025《信息与文献 参考文献著录规则》</strong>已于 <strong>2026 年 7 月 1 日实施</strong>（代替 2015 版）。与 2015 版相比，影响论文写作与排版的 5 个最大变化是：
+      ① <strong>西文与汉语拼音作者姓氏不再全大写</strong>，改为仅首字母大写（<code>Einstein A</code>、<code>Li Jiangning</code>）；
+      ② <strong>新增预印本标识 <code>[PP]</code></strong>（如 arXiv 论文标为 <code>[PP/OL]</code>）；
+      ③ <strong><code>[EB]</code> 由“电子公告”改为“网站、网页”</strong>，在线期刊/图书按本体标 <code>[J/OL]</code>、<code>[M/OL]</code> 而不再兜底标成 <code>[EB/OL]</code>；
+      ④ <strong><code>[引用日期]</code> 大幅收窄</strong>，仅网站网页、数据集、预印本三类必备；
+      ⑤ <strong>DOI 扩展为永久标识符（PID）</strong>，同时支持 <code>DOI:</code>、<code>CSTR:</code>（科技资源标识）与 URN。
+      使用 <strong><a href="/">{SITE_NAME}</a></strong> 可将旧版引文或 DOI 一键转为 2025 标准格式。
+    </p>
+    <div class="specimen-block">
+      <div class="specimen-hanging">
+        <strong>2015 旧版：</strong>[1] MYBURG A A, GRATTAPAGLIA D, TUSKAN G A, et al. The genome of <i>Eucalyptus grandis</i>[J/OL]. Nature, 2014, 510: 356-362[2025-06-01]. DOI: 10.1038/nature13308.
+      </div>
+      <div class="specimen-hanging">
+        <strong>2025 现行：</strong>[1] Myburg A A, Grattapaglia D, Tuskan G A, et al. The genome of <i>Eucalyptus grandis</i>[J/OL]. Nature, 2014, 510: 356-362. DOI:10.1038/nature13308.
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-try-bar">
+    <span>想把论文里的 2015 旧版参考文献一键升级到 2025 新国标？</span>
+    <a href="/" class="btn-primary">打开 2025 新国标在线转换工具</a>
+  </div>
+
+  <h2>国家标准官方备案信息核对</h2>
+  <ul>
+    <li>
+      <strong>现行标准</strong>：GB/T 7714—2025《信息与文献 参考文献著录规则》（2025-12-02 发布，2026-07-01 实施，非等效采用 ISO 690:2021）—
+      <a href={OFFICIAL_STD_LINKS.openstd2025} target="_blank" rel="noopener noreferrer">国家标准全文公开系统官方页</a> ·
+      <a href={OFFICIAL_STD_LINKS.samrPlan2025} target="_blank" rel="noopener noreferrer">全国标准信息公共服务平台详情页</a>
+    </li>
+    <li>
+      <strong>被替代标准</strong>：GB/T 7714—2015（2015-05-15 发布，2026-07-01 废止）—
+      <a href={OFFICIAL_STD_LINKS.samr2015Abolished} target="_blank" rel="noopener noreferrer">全国标准信息公共服务平台废止公示</a>
+    </li>
+  </ul>
+
+  <h2>GB/T 7714—2025 与 2015 版核心规则逐项对照表</h2>
+  <div class="spec-table-wrap">
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th>对比维度</th>
+          <th>GB/T 7714—2015（已废止）</th>
+          <th>GB/T 7714—2025（现行标准）</th>
+          <th>对写论文的实际影响</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>西文个人责任者</strong></td>
+          <td>姓全部大写，名缩写：<code>EINSTEIN A</code>、<code>WILLIAMS-ELLIS A</code>、<code>DE MORGAN A</code></td>
+          <td>姓仅首字母大写，名缩写：<code>Einstein A</code>、<code>Williams-Ellis A</code>、<code>De Morgan A</code></td>
+          <td>最直观的外观变化，旧模板生成的全大写姓氏需全部更新</td>
+        </tr>
+        <tr>
+          <td><strong>汉语拼音责任者</strong></td>
+          <td>姓全大写，名可全拼或缩写：<code>LI Jiangning</code> / <code>LI J N</code></td>
+          <td>姓首字母大写，<strong>名宜用全称</strong>：<code>Li Jiangning</code></td>
+          <td>引用华人学者发表的英文论文时，名宜保留完整拼音以避免重名歧义</td>
+        </tr>
+        <tr>
+          <td><strong>预印本文献类型</strong></td>
+          <td>无 <code>PP</code> 代码，arXiv / ChinaXiv 只能勉强归入 <code>[EB/OL]</code></td>
+          <td><strong>新增预印本标识 <code>[PP]</code></strong>（在线为 <code>[PP/OL]</code>），单列第 8.15 节</td>
+          <td>人工智能、物理、生物医学论文引用 arXiv / bioRxiv 有了正式国标格式</td>
+        </tr>
+        <tr>
+          <td><strong>[EB] 代码定义</strong></td>
+          <td>表示“电子公告”</td>
+          <td>改为<strong>“网站、网页”</strong>（第 8.11 节）</td>
+          <td>只有纯网站或网页内容才标 <code>[EB/OL]</code></td>
+        </tr>
+        <tr>
+          <td><strong>在线资源归类逻辑</strong></td>
+          <td>设“4.6 电子资源”大类，易把在线文献统一写成 <code>[EB/OL]</code></td>
+          <td>拆分融入各具体文献类型，按本体标 <code>[J/OL]</code>、<code>[M/OL]</code>、<code>[D/OL]</code>、<code>[R/OL]</code></td>
+          <td>严禁把有正式刊号的网刊论文或电子学位论文标成 <code>[EB/OL]</code></td>
+        </tr>
+        <tr>
+          <td><strong>[引用日期] 范围</strong></td>
+          <td>在线电子资源普遍著录 <code>[YYYY-MM-DD]</code></td>
+          <td><strong>仅网站网页 <code>[EB/OL]</code>、数据集 <code>[DS/OL]</code>、预印本 <code>[PP/OL]</code> 必备</strong></td>
+          <td>普通在线期刊 <code>[J/OL]</code> 不再写 <code>[引用日期]</code>，条文更简洁</td>
+        </tr>
+        <tr>
+          <td><strong>数据集 [DS]</strong></td>
+          <td>附录有 <code>DS</code> 代码，但正文无专门章节</td>
+          <td>新增独立第 8.14 节，规定版本号（<code>V1.0</code>）、发布平台、（发布日期）与 <code>[引用日期]</code></td>
+          <td>引用科学数据中心、Zenodo 数据集有明确项目表可依</td>
+        </tr>
+        <tr>
+          <td><strong>地图 [CM]</strong></td>
+          <td>附录代码名称为“舆图”，正文无独立格式</td>
+          <td>名称更新为<strong>“地图”</strong>（第 8.13 节），细化比例尺（如 <code>1:25000</code>）与尺寸字段</td>
+          <td>地理、测绘、地质学科引图更规范</td>
+        </tr>
+        <tr>
+          <td><strong>唯一标识符</strong></td>
+          <td>“数字对象唯一标识符（DOI）”</td>
+          <td>扩展为<strong>“永久标识符（PID）”</strong>，含 <code>DOI:</code>、<code>CSTR:</code>、URN</td>
+          <td>国内科学数据平台常见的 <code>CSTR:</code> 标识正式纳入国标</td>
+        </tr>
+        <tr>
+          <td><strong>期刊文章编号与网络首发</strong></td>
+          <td>未明确电子文章编号（Article Number）替代页码细则</td>
+          <td>无页码有文章编号时按页码著录；网络首发无卷期论文著录完整日期 <code>YYYY-MM-DD</code></td>
+          <td>解决开放获取电子刊（如 Nature 子刊）与知网网络首发论文著录难题</td>
+        </tr>
+        <tr>
+          <td><strong>著者-出版年制标点</strong></td>
+          <td>中文责任者后直接空格接年份示例不一</td>
+          <td>明确规定中文条目出版年置于责任者之后，以逗号分隔（如 <code>张伯伟, 2002.</code>）</td>
+          <td>经济、管理、社科类采用著者-出版年制的论文需注意逗号分隔</td>
+        </tr>
+        <tr>
+          <td><strong>附录性质</strong></td>
+          <td>文献类型代码表（附录 B）为资料性附录</td>
+          <td>文献类型和载体代码表提升至<strong>附录 A（规范性附录）</strong>，新增缩微资料 <code>MM</code></td>
+          <td>类型代码使用约束力更强</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>GB/T 7714—2025 常见文献类型标准格式速查示例</h2>
+  <div class="spec-table-wrap">
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th>文献类型</th>
+          <th>标识代码</th>
+          <th>GB/T 7714—2025 顺序编码制示例</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>期刊论文</td>
+          <td><code>[J]</code> / <code>[J/OL]</code></td>
+          <td><code>[1] 于潇, 刘义, 柴跃廷, 等. 互联网药品可信交易环境中主体资质审核备案模式[J]. 清华大学学报(自然科学版), 2012, 52(11): 1518-1523.</code></td>
+        </tr>
+        <tr>
+          <td>图书 / 专著</td>
+          <td><code>[M]</code> / <code>[M/OL]</code></td>
+          <td><code>[2] Peebles P Z Jr. Probability, random variables, and random signal principles[M]. 4th ed. New York: McGraw-Hill, 2001.</code></td>
+        </tr>
+        <tr>
+          <td>会议论文</td>
+          <td><code>[C]</code> / <code>[C/OL]</code></td>
+          <td><code>[3] Yu Yang, Pan Erting, Wang Xinya, et al. Unmixing before fusion[C/OL]//CVPR, 2024: 4.</code></td>
+        </tr>
+        <tr>
+          <td>学位论文</td>
+          <td><code>[D]</code> / <code>[D/OL]</code></td>
+          <td><code>[4] 王琦. 融合星载 GNSS-R 和 SAR 数据的高时空分辨率土壤湿度反演方法研究[D]. 武汉: 武汉大学, 2022: 87.</code></td>
+        </tr>
+        <tr>
+          <td>预印本（新增）</td>
+          <td><code>[PP/OL]</code></td>
+          <td><code>[5] Jenkins S D, Ruostekoski J. Controlled manipulation of light by cooperative response of atoms in an optical lattice[PP/OL]. V2. arXiv (2012-03-18) [2020-06-24]. https://arxiv.org/abs/1112.6136.</code></td>
+        </tr>
+        <tr>
+          <td>科学数据集</td>
+          <td><code>[DS/OL]</code></td>
+          <td><code>[6] 周壮, 李盛阳, 吴薇, 等. 天宫二号遥感图像自然景物分类科学数据[DS/OL]. V1.0. 国家基础学科公共科学数据中心 (2023-09-10) [2025-07-15]. https://www.nbsdc.cn/general/dataLinks/CSTR:16666.11.nbsdc.tfpbwtqf.</code></td>
+        </tr>
+        <tr>
+          <td>网站 / 网页</td>
+          <td><code>[EB/OL]</code></td>
+          <td><code>[7] 中国国家博物馆[EB/OL]. [2025-05-06]. https://www.chnmuseum.cn/.</code></td>
+        </tr>
+        <tr>
+          <td>国家/国际标准</td>
+          <td><code>[S]</code></td>
+          <td><code>[8] GB/T 3792—2021 信息与文献 资源描述[S].</code></td>
+        </tr>
+        <tr>
+          <td>专利</td>
+          <td><code>[P]</code> / <code>[P/OL]</code></td>
+          <td><code>[9] 邓一刚. 全智能节电器: CN200610171314.3[P]. 2008-01-16: 8-9.</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</GuideLayout>

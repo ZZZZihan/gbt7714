@@ -1,0 +1,23 @@
+{
+  "name": "gbt7714",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GB/T 7714—2025 参考文献生成与格式转换工具（支持 DOI、BibTeX、RIS、知网乱码清洗及 APA/IEEE/国标互转）",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "deploy": "astro build && wrangler pages deploy dist --project-name gbt7714",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "astro": "^5.7.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "vitest": "^3.1.0",
+    "wrangler": "^4.161.0"
+  }
+}

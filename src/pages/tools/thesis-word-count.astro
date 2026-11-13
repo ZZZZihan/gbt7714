@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SITE_NAME } from '../../lib/site';
+
+const title = '按高校口径统计学位论文字数（分章节与参考文献独立统计）';
+const description =
+  '按高校学位论文规范分别统计中文摘要、英文摘要、正文各章、图表注、参考文献与致谢字数，纯浏览器本地解析。';
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalPath="/tools/thesis-word-count/"
+  noindex={true}
+>
+  <main class="article-shell">
+    <nav class="breadcrumb" aria-label="面包屑导航">
+      <a href="/">{SITE_NAME}首页</a>
+      <span aria-hidden="true">/</span>
+      <span>后续规划工具</span>
+    </nav>
+
+    <article class="prose-content">
+      <header class="article-header">
+        <h1>按学校口径统计学位论文字数（即将上线）</h1>
+      </header>
+
+      <div class="direct-answer-box">
+        <div class="direct-answer-title">功能开发规划说明</div>
+        <p>
+          Word 自带的状态栏字数统计会把封面、目录、中英文摘要、正文、参考文献和致谢混在一起计算，而多数高校研究生院与教务处要求<strong>仅统计绪论至结论的正文字数</strong>（且对英文单词、字符数与标点的折算口径不同）。本工具正在开发中，全程在浏览器本地解析 <code>.docx</code> 文档，论文不离机。
+        </p>
+      </div>
+
+      <h2>首版将支持的分项统计能力</h2>
+      <ul>
+        <li><strong>自动切分论文结构</strong>：分别列出中英文摘要、目录、正文各章、公式与图表题注、参考文献表、附录及致谢的独立字数。</li>
+        <li><strong>多口径并列展示</strong>：同时展示「Word 字数口径（中文字符 + 英文词）」「纯中文汉字数」「计空格/不计空格字符数」，方便对照本校学位论文撰写规范。</li>
+      </ul>
+
+      <div class="cta-try-bar">
+        <span>当前可先使用已上线的参考文献生成与格式转换工具：</span>
+        <a href="/" class="btn-primary">返回 GB/T 7714—2025 转换器首页</a>
+      </div>
+    </article>
+  </main>
+</BaseLayout>

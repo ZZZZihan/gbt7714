@@ -1,0 +1,133 @@
+---
+import GuideLayout from '../../components/GuideLayout.astro';
+import { SITE_NAME, OFFICIAL_STD_LINKS } from '../../lib/site';
+
+const title = 'BibTeX、Zotero、知网导出的文献怎么转成国标 GB/T 7714—2025';
+const description =
+  '详解将 Google Scholar 的 BibTeX、Zotero 导出的 RIS/BibTeX 以及中国知网（CNKI）导出的引文批量转换为 GB/T 7714—2025 新国标格式的方法与各软件导出格式对照表。';
+
+const steps = [
+  {
+    name: '从 Google Scholar、Zotero 或知网导出文献文本',
+    text: 'Google Scholar 点击「引用 → BibTeX」；Zotero 右键选中条目「导出条目 → RIS 或 BibTeX」；知网勾选文献点击「导出参考文献 → GB/T 7714 或 EndNote/NoteExpress」。',
+  },
+  {
+    name: '整段粘贴到在线工作台自动识别',
+    text: '打开「国标引文 7714」首页，无需手动选择输入格式，直接粘贴多条 @article{...}、TY - JOUR 或知网文本，工具自动识别格式并解析字段。',
+  },
+  {
+    name: '一键复制符合 2025 国标的结果到 Word',
+    text: '确认右侧预览无误后，点击「复制全部（保留 Word 斜体）」，即可直接粘贴进毕业论文参考文献章节。',
+  },
+];
+
+const faqs = [
+  {
+    q: 'Google Scholar 直接点“引用”里显示的 GB/T 7714 能直接用吗？',
+    a: '不建议直接用。Google Scholar 引用弹窗内置的国标模板长期存在两类问题：一是仍按旧版习惯排全大写姓氏或标点残缺，二是常常漏掉卷号、期号、文献类型标识（如把会议论文误标为 [J]）。更稳妥的做法是点击弹窗底部的「BibTeX」，将完整的 @article / @inproceedings 代码粘贴到本站转换为 2025 新国标。',
+  },
+  {
+    q: 'Zotero 里怎么使用 GB/T 7714—2025？如果不想折腾语言字段怎么办？',
+    a: 'Zotero 用户若通过 Word 插件自动插引文，需前往 Zotero 中文社区（zotero-chinese/styles）下载「GB/T 7714—2025（顺序编码，双语）」CSL 样式，且必须逐条将中文文献的「语言」字段设为 zh-CN、英文设为 en-US，否则英文文献会出现“等”而非“et al.”。若只需在定稿阶段快速导出整套合规参考文献表，直接从 Zotero 导出 RIS 或 BibTeX 粘贴到本工具即可自动按语种区分“等”与“et al.”，免去逐条改语言字段的步骤。',
+  },
+  {
+    q: '从知网导出的参考文献为什么还要再转一次？',
+    a: '知网部分导出通道仍沿用 2015 版格式（西文姓全大写、在线期刊带多余引用日期），且从网页或 PDF 复制时极易混入汉字间断字空格与全角括号。粘贴到本工具可一次性清洗格式并升级到 2025 版。',
+  },
+];
+---
+
+<GuideLayout
+  title={title}
+  description={description}
+  canonicalPath="/guides/bibtex-zotero-cnki-to-gbt7714/"
+  howToSteps={steps}
+  faqs={faqs}
+  citations={[OFFICIAL_STD_LINKS.openstd2025, OFFICIAL_STD_LINKS.zoteroChineseStyles]}
+>
+  <div class="direct-answer-box">
+    <div class="direct-answer-title">直接答案与转换示例</div>
+    <p>
+      无论是 Google Scholar 复制的 <strong>BibTeX</strong>（<code>@article&#123;...&#125;</code>）、<strong>Zotero / EndNote</strong> 导出的 <strong>RIS</strong>（<code>TY - JOUR</code>），还是<strong>中国知网（CNKI）</strong>导出的引文，都可以直接整段粘贴进 <strong><a href="/?sample=bibtex">{SITE_NAME}</a></strong>，自动按中英双语规则（中文超 3 人用“等”，英文超 3 人用“et al.”，西文姓首字母大写）生成 <strong>GB/T 7714—2025</strong> 格式。
+    </p>
+    <div class="code-sample">@inproceedings&#123;he2016deep,
+  author = &#123;He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian&#125;,
+  title = &#123;Deep residual learning for image recognition&#125;,
+  booktitle = &#123;Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition&#125;,
+  year = &#123;2016&#125;,
+  pages = &#123;770--778&#125;
+&#125;</div>
+    <div class="specimen-block">
+      <div class="specimen-hanging">
+        [1] He K, Zhang X, Ren S, et al. Deep residual learning for image recognition[C]//Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2016: 770-778.
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-try-bar">
+    <span>点击加载多条 BibTeX / RIS 示例，直接体验批量转 2025 新国标：</span>
+    <a href="/?sample=bibtex" class="btn-primary">打开 BibTeX / RIS 转换工作台</a>
+  </div>
+
+  <h2>三大常见文献来源的导出与转换步骤</h2>
+
+  <h3>1. Google Scholar / arXiv / IEEE Xplore（BibTeX 转国标）</h3>
+  <ol>
+    <li>在 Google Scholar 搜索结果下方点击「引用（Cite）」，不要直接复制面板上的简略文本，点击左下角 <strong>BibTeX</strong>。</li>
+    <li>全选复制页面中的 <code>@article&#123;...&#125;</code>、<code>@inproceedings&#123;...&#125;</code> 或 <code>@misc&#123;...&#125;</code> 代码（多篇可拼在一起粘贴）。</li>
+    <li>粘贴到 <a href="/?sample=bibtex">{SITE_NAME}</a>，工具会自动清理 LaTeX 转义符（如将 <code>--</code> 转为 <code>-</code>、保留 <code>\textit&#123;&#125;</code> 拉丁学名斜体、将 <code>archivePrefix = &#123;arXiv&#125;</code> 识别为 <code>[PP/OL]</code>）。</li>
+  </ol>
+
+  <h3>2. Zotero / EndNote / Mendeley（RIS 或 BibTeX 批量转国标）</h3>
+  <ol>
+    <li>在 Zotero 中按住 Shift 或 Ctrl 选中论文引用的全部条目，右键选择「导出条目（Export Items）」。</li>
+    <li>格式选择 <strong>RIS</strong> 或 <strong>BibTeX</strong>（编码保持 UTF-8），用记事本打开导出的文件全选复制。</li>
+    <li>粘贴到 <a href="/?sample=ris">{SITE_NAME}</a>，无需在 Zotero 内逐条设置 <code>zh-CN</code> / <code>en-US</code> 语言字段，工具会根据题名与责任者字符集自动处理中英文混排标点与“等 / et al.”。</li>
+  </ol>
+
+  <h3>3. 中国知网 CNKI / 万方 / 维普（引文或标签文本转 2025 国标）</h3>
+  <ol>
+    <li>在知网检索页勾选目标文献，点击「导出与分析 → 导出文献」，可选择「GB/T 7714」或字段更完整的「EndNote / NoteExpress」格式。</li>
+    <li>复制到本站输入框后，程序会自动把知网残留的 2015 版格式特征（如英文论文姓全大写、多余空格、在线期刊多余引用日期）统一升级为 2025 现行国标。</li>
+  </ol>
+
+  <h2>不同导出格式完整度与推荐度对照表</h2>
+  <div class="spec-table-wrap">
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th>文献来源与格式</th>
+          <th>字段完整度</th>
+          <th>常见坑点</th>
+          <th>转换建议</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>BibTeX（.bib）</strong></td>
+          <td>高（含卷、期、页码、DOI、会议名）</td>
+          <td>含 <code>&#123;&#125;</code> 保护花括号与 <code>--</code> 连字符；Google Scholar 偶尔把预印本标成 <code>@article</code></td>
+          <td><strong>强烈推荐</strong>，整段粘贴即可无损转换</td>
+        </tr>
+        <tr>
+          <td><strong>RIS（.ris，Zotero/外文库）</strong></td>
+          <td>极高（起止页 <code>SP/EP</code>、日期 <code>DA</code> 独立）</td>
+          <td>纯文本体积略大，无法直接肉眼阅读</td>
+          <td><strong>强烈推荐</strong>，最适合 Zotero / ScienceDirect 批量导出</td>
+        </tr>
+        <tr>
+          <td><strong>EndNote（%0 %A %T）/ NoteExpress</strong></td>
+          <td>高（知网导出字段齐全）</td>
+          <td>知网导出的作者间有时用分号或含多余空格</td>
+          <td><strong>推荐</strong>，中文学位论文与期刊字段比直接复制引文更准</td>
+        </tr>
+        <tr>
+          <td><strong>知网 / 学术搜直接复制引文</strong></td>
+          <td>中（部分缺 DOI 或出版地）</td>
+          <td>停留在 2015 版、汉字间带乱空格、缺页码</td>
+          <td>可用本站自动清洗升级；外文文献建议点「用 Crossref 校准」补齐字段</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</GuideLayout>

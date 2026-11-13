@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SITE_NAME } from '../../lib/site';
+
+const title = '正文引用与参考文献对照检查工具（顺序编码制 [1]）';
+const description =
+  '检查毕业论文正文中 [1]、[2-5] 等顺序编码引用与文末参考文献表是否一一对应、有无漏引、未引或序号乱序。';
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalPath="/tools/citation-check/"
+  noindex={true}
+>
+  <main class="article-shell">
+    <nav class="breadcrumb" aria-label="面包屑导航">
+      <a href="/">{SITE_NAME}首页</a>
+      <span aria-hidden="true">/</span>
+      <span>后续规划工具</span>
+    </nav>
+
+    <article class="prose-content">
+      <header class="article-header">
+        <h1>正文引用与参考文献对照检查（即将上线）</h1>
+      </header>
+
+      <div class="direct-answer-box">
+        <div class="direct-answer-title">功能开发规划说明</div>
+        <p>
+          本工具正在按计划开发中，首期聚焦<strong>顺序编码制（<code>[1]</code>、<code>[2, 4]</code>、<code>[5-8]</code>）</strong>论文定稿核查，全部在浏览器本地完成检测，不上传论文原稿。
+        </p>
+      </div>
+
+      <h2>首版将支持的核查项</h2>
+      <ul>
+        <li><strong>漏列与多列检查</strong>：找出正文中引用了编号但文末参考文献表缺失，或文末列出了文献但正文从未出现的孤立条目。</li>
+        <li><strong>首次出现顺序校验</strong>：按 GB/T 7714—2025 第 9.2 节规定，检查正文各标引序号是否严格按首次引用先后递增排列（如跳过 <code>[6]</code> 先出现 <code>[7]</code>）。</li>
+        <li><strong>连续序号区间规范提示</strong>：识别诸如 <code>[1][2][3]</code> 或 <code>[1, 2, 3]</code> 等未合并写法，提示改为标准区间 <code>[1-3]</code>。</li>
+      </ul>
+
+      <div class="cta-try-bar">
+        <span>当前可先使用已上线的参考文献生成与格式转换工具：</span>
+        <a href="/" class="btn-primary">返回 GB/T 7714—2025 转换器首页</a>
+      </div>
+    </article>
+  </main>
+</BaseLayout>

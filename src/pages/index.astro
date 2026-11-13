@@ -1,0 +1,221 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CitationWorkbench from '../components/CitationWorkbench.astro';
+import {
+  SITE_NAME,
+  GUIDES,
+  UPCOMING_TOOLS,
+  OFFICIAL_STD_LINKS,
+  absoluteUrl,
+} from '../lib/site';
+
+const pageTitle = 'GB/T 7714—2025 参考文献生成与格式转换工具（支持 DOI / BibTeX / 知网 / APA / IEEE）';
+const pageDesc =
+  '免费在线 GB/T 7714—2025 参考文献生成器与格式转换小工具：支持批量输入 DOI、BibTeX、RIS、知网乱序引文，支持 APA、IEEE 与 2025 新国标互相转换，一键粘贴进 Word 保留斜体与悬挂缩进，免注册纯本地处理。';
+
+const faqs = [
+  {
+    q: 'GB/T 7714—2025 什么时候开始实施？毕业论文该用 2025 版还是 2015 版？',
+    a: '国家标准 GB/T 7714—2025《信息与文献 参考文献著录规则》于 2025 年 12 月 2 日发布，已于 2026 年 7 月 1 日正式实施，同时代替并废止 GB/T 7714—2015。2026 年下半年及之后的本硕博学位论文与中文期刊投稿建议默认采用 2025 版；若你所在学校教务模板尚未更新，也可在工具右上角一键切换至 2015 旧版应急对比。',
+  },
+  {
+    q: '复制到 Microsoft Word 或 WPS 时怎样保留期刊名斜体？',
+    a: '点击输出区上方的「复制全部（保留 Word 斜体）」按钮，直接按 Ctrl+V / Command+V 粘贴到 Word 正文中，即可保留 APA / IEEE 要求的期刊名、书名斜体以及国标中的拉丁学名斜体，同时预设五号宋体 + Times New Roman 与 2 字符悬挂缩进，不附带网页背景色。',
+  },
+  {
+    q: '输入文献数据会上传到服务器保存吗？',
+    a: '不会。BibTeX、RIS、知网错乱引文清洗与 APA / IEEE / 国标互转全部在你的浏览器本地完成；仅当你输入 DOI 或 arXiv 编号时，由你的浏览器直接请求开放学术注册库 Crossref 或 DataCite 获取公开出版元数据。',
+  },
+  {
+    q: '为什么部分早期中文论文搜不到 DOI？',
+    a: '部分早期中文期刊或学位论文未在国际 Crossref 注册 DOI。针对这类文献，直接从中国知网（CNKI）复制引文文本或导出 NoteExpress / EndNote 标签粘贴到左侧输入框，即可在本地直接清洗并转换为 GB/T 7714—2025 格式。',
+  },
+];
+
+const schemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: `${SITE_NAME} - GB/T 7714—2025 参考文献生成与转换工具`,
+    applicationCategory: 'EducationalApplication',
+    operatingSystem: 'All (Web Browser)',
+    url: absoluteUrl('/'),
+    description: pageDesc,
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'CNY',
+    },
+    featureList: [
+      'DOI 批量查询生成 GB/T 7714—2025 参考文献',
+      'BibTeX、RIS、Zotero、知网导出引文格式转换',
+      '知网参考文献乱空格、断行与全半角标点自动修复',
+      'APA 第 7 版、IEEE 与 GB/T 7714—2025 互相转换',
+      '富文本一键粘贴进 Word 保留斜体与悬挂缩进',
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a,
+      },
+    })),
+  },
+];
+---
+
+<BaseLayout title={pageTitle} description={pageDesc} canonicalPath="/" schemas={schemas}>
+  <main class="page-shell">
+    <header class="hero-compact">
+      <div class="hero-title-row">
+        <h1>GB/T 7714—2025 参考文献生成与格式转换</h1>
+        <span class="badge-active-std">依据 2026-07-01 实施现行国标</span>
+      </div>
+      <p class="hero-lead">
+        批量输入 DOI、BibTeX、RIS 或知网错乱引文，自动转为 2025 新国标、APA 7th 或 IEEE；支持一键带斜体粘贴进 Word，免登录，纯浏览器本地处理。
+      </p>
+    </header>
+
+    <CitationWorkbench />
+
+    <section class="home-section" aria-labelledby="sec-highlights">
+      <h2 id="sec-highlights">GB/T 7714—2025 新国标五项速查要点</h2>
+      <div class="spec-table-wrap">
+        <table class="spec-table">
+          <thead>
+            <tr>
+              <th>核查项</th>
+              <th>2015 旧版写法（已废止）</th>
+              <th>2025 新版标准写法（现行）</th>
+              <th>本工具自动处理方式</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>西文与拼音作者姓氏</strong></td>
+              <td>姓氏全大写：<code>EINSTEIN A</code>、<code>LI Jiangning</code></td>
+              <td>仅首字母大写：<code>Einstein A</code>、<code>Li Jiangning</code></td>
+              <td>自动识别全大写姓氏并转为首字母大写，保留复合姓连字符</td>
+            </tr>
+            <tr>
+              <td><strong>预印本（arXiv / ChinaXiv）</strong></td>
+              <td>无专属标识，多归入 <code>[EB/OL]</code></td>
+              <td>新增预印本标识 <code>[PP]</code> / <code>[PP/OL]</code>，含版本号如 <code>V2.</code></td>
+              <td>识别 arXiv DOI / 链接 / BibTeX 自动输出 <code>[PP/OL]</code></td>
+            </tr>
+            <tr>
+              <td><strong>在线资源与 [EB] 含义</strong></td>
+              <td><code>[EB]</code> 为电子公告，常被误作电子文献兜底</td>
+              <td><code>[EB]</code> 改为“网站、网页”；在线期刊/学位论文按本体标 <code>[J/OL]</code>、<code>[D/OL]</code></td>
+              <td>严格按文献本体类型匹配载体标识，避免全部降级成 <code>[EB/OL]</code></td>
+            </tr>
+            <tr>
+              <td><strong>[引用日期] 标注范围</strong></td>
+              <td>多数在线文献均写 <code>[YYYY-MM-DD]</code></td>
+              <td>仅 <code>[EB/OL]</code> 网站网页、<code>[DS/OL]</code> 数据集、<code>[PP/OL]</code> 预印本必备</td>
+              <td>自动剔除普通在线期刊 <code>[J/OL]</code> 多余的引用日期</td>
+            </tr>
+            <tr>
+              <td><strong>永久标识符（PID）</strong></td>
+              <td>仅规定数字对象唯一标识符 <code>DOI</code></td>
+              <td>扩展为永久标识符，涵盖 <code>DOI:10.xxxx</code>、<code>CSTR:</code>、URN 等</td>
+              <td>规范化输出无空格 <code>DOI:</code> 与科技资源标识 <code>CSTR:</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="section-footnote">
+        完整条文差异与 13 类文献标准示例见专页：<a href="/guides/gbt7714-2025-vs-2015/">GB/T 7714—2025 和 2015 版有什么区别（附国家标准公开系统官方链接）</a>。
+      </p>
+    </section>
+
+    <section class="home-section" aria-labelledby="sec-guides">
+      <h2 id="sec-guides">分场景转换指南与对照表</h2>
+      <div class="guides-grid">
+        {GUIDES.map((g) => (
+          <a href={g.path} class="guide-link-card">
+            <strong>{g.title}</strong>
+            <span>{g.description}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="home-section" aria-labelledby="sec-roadmap">
+      <h2 id="sec-roadmap">学位论文排版工具矩阵（后续规划）</h2>
+      <div class="guides-grid">
+        {UPCOMING_TOOLS.map((t) => (
+          <a href={t.path} class="guide-link-card">
+            <strong>{t.title} · {t.badge}</strong>
+            <span>{t.summary}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="home-section" aria-labelledby="sec-faq">
+      <h2 id="sec-faq">常见问题解答</h2>
+      <div class="faq-list">
+        {faqs.map((f) => (
+          <article class="faq-item">
+            <h3>{f.q}</h3>
+            <p>{f.a}</p>
+          </article>
+        ))}
+      </div>
+      <p class="section-footnote">
+        参考标准出处：国家市场监督管理总局、国家标准化管理委员会《<a href={OFFICIAL_STD_LINKS.openstd2025} target="_blank" rel="noopener noreferrer">GB/T 7714—2025 信息与文献 参考文献著录规则</a>》。
+      </p>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .hero-compact {
+    margin-bottom: 0.9rem;
+  }
+
+  .hero-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.35rem;
+  }
+
+  .hero-compact h1 {
+    margin: 0;
+    font-size: clamp(1.38rem, 2.5vw, 1.78rem);
+    letter-spacing: -0.015em;
+    line-height: 1.28;
+  }
+
+  .hero-lead {
+    margin: 0;
+    color: var(--ink-secondary);
+    font-size: 0.95rem;
+    max-width: 76ch;
+  }
+
+  .home-section {
+    margin-top: 2.6rem;
+  }
+
+  .home-section h2 {
+    font-size: 1.22rem;
+    margin: 0 0 0.85rem;
+    padding-bottom: 0.45rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .section-footnote {
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    margin-top: 0.75rem;
+  }
+</style>
